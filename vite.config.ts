@@ -14,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     dts({
       tsconfigPath: "tsconfig.app.json",
-      // insertTypesEntry: true,
+      insertTypesEntry: true,
     }),
   ],
   build: {

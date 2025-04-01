@@ -1,6 +1,6 @@
 {
   "name": "feedbackland-react",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "files": [
     "dist"
@@ -18,11 +18,10 @@
     "url": "https://github.com/feedbackland/feedbackland-react.git"
   },
   "private": false,
-  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@iframe-resizer/react": "^5.4.2",

@@ -1,0 +1,53 @@
+{
+  "name": "feedbackland-react",
+  "version": "0.0.1",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/feedbackland-react.umd.cjs",
+  "module": "./dist/feedbackland-react.js",
+  "exports": {
+    ".": {
+      "import": "./dist/feedbackland-react.js",
+      "require": "./dist/feedbackland-react.umd.cjs"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/feedbackland/feedbackland-react.git"
+  },
+  "private": false,
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@iframe-resizer/react": "^5.4.2",
+    "@tailwindcss/vite": "^4.0.17",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.0.17",
+    "vaul": "^1.1.2",
+    "vite-plugin-dts": "^4.5.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.23.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.2",
+    "typescript-eslint": "^8.29.0",
+    "vite": "^6.2.4"
+  }
+}

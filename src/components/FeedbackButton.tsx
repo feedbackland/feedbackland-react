@@ -1,3 +1,5 @@
+"use client";
+
 import IframeResizer from "@iframe-resizer/react";
 import { Drawer } from "vaul";
 

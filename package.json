@@ -21,7 +21,8 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -b && vite build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "@iframe-resizer/react": "^5.4.2",

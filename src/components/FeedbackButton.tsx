@@ -1,10 +1,7 @@
-"use client";
-
-import * as React from "react";
 import IframeResizer from "@iframe-resizer/react";
 import { Drawer } from "vaul";
 
-export function FeedbackButton() {
+const FeedbackButton = () => {
   return (
     <Drawer.Root direction="right">
       <Drawer.Trigger className="relative flex h-10 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white">
@@ -37,4 +34,8 @@ export function FeedbackButton() {
       </Drawer.Portal>
     </Drawer.Root>
   );
-}
+};
+
+FeedbackButton.displayName = "FeedbackButton";
+
+export { FeedbackButton };

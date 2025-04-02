@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 import dts from "vite-plugin-dts";
 import { name } from "./package.json";
 import preserveDirectives from "rollup-preserve-directives";
+import path from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -19,6 +20,11 @@ export default defineConfig({
       insertTypesEntry: true,
     }),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   build: {
     lib: {
       name,

@@ -1,2 +1,1 @@
-import { FeedbackButton } from "./components/FeedbackButton";
-export { FeedbackButton };
+export { FeedbackButton } from "./components/FeedbackButton";

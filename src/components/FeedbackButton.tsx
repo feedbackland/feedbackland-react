@@ -35,6 +35,4 @@ const FeedbackButton = () => {
   );
 };
 
-FeedbackButton.displayName = "FeedbackButton";
-
 export { FeedbackButton };

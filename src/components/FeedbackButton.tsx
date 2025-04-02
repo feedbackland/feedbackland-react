@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import IframeResizer from "@iframe-resizer/react";
 import { Drawer } from "vaul";
 
@@ -28,6 +29,8 @@ export function FeedbackButton() {
                 height: "100vh",
                 // border: "solid 2px red",
               }}
+              // @ts-expect-error waitForLoad prop typing not included
+              waitForLoad={true}
             />
           </div>
         </Drawer.Content>

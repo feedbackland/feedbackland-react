@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import dts from "vite-plugin-dts";
 import { name } from "./package.json";
+import preserveDirectives from "rollup-preserve-directives";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -12,6 +13,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    preserveDirectives(),
     dts({
       tsconfigPath: "tsconfig.app.json",
       insertTypesEntry: true,

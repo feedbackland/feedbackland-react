@@ -1,4 +1,6 @@
-// import IframeResizer from "@iframe-resizer/react";
+"use client";
+
+import IframeResizer from "@iframe-resizer/react";
 import { Drawer } from "vaul";
 
 const FeedbackButton = () => {
@@ -18,17 +20,14 @@ const FeedbackButton = () => {
               This one specifically is not touching the edge of the screen, but
               that&apos;s not required for a side drawer.
             </Drawer.Description>
-            {/* <IframeResizer
+            <IframeResizer
               license="GPLv3"
               src="https://1a86a2d8-e4ce-4fc0-a886-0f1bcacbfa6e.feedbackland.com"
               style={{
                 width: "600px",
                 height: "100vh",
-                // border: "solid 2px red",
               }}
-              // @ts-expect-error waitForLoad prop typing not included
-              waitForLoad={true}
-            /> */}
+            />
           </div>
         </Drawer.Content>
       </Drawer.Portal>

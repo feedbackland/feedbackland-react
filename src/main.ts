@@ -1,1 +1,1 @@
-export { FeedbackButton } from "./components/FeedbackButton";
+export { FeedbackButton } from "./FeedbackButton";

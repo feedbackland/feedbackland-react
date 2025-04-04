@@ -18,10 +18,10 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      name,
       entry: resolve(__dirname, "src/index.ts"),
-      fileName: (format) => `${name}.${format}.js`,
-      formats: ["es", "umd"],
+      name,
+      fileName: name,
+      formats: ["es"],
     },
     rollupOptions: {
       external: ["react", "react-dom", "react/jsx-runtime"],

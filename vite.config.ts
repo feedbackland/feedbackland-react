@@ -18,12 +18,21 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/main.ts"),
       name,
-      fileName: name,
+      entry: resolve(__dirname, "src/index.ts"),
+      fileName: (format) => `${name}.${format}.js`,
+      formats: ["es", "umd"],
     },
     rollupOptions: {
-      external: ["react", "react-dom", "react/jsx-runtime", "tailwindcss"],
+      external: ["react", "react-dom", "react/jsx-runtime"],
+      output: {
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+          "react/jsx-runtime": "jsxRuntime",
+        },
+      },
     },
+    emptyOutDir: true,
   },
 });

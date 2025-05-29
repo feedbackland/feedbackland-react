@@ -3,7 +3,7 @@
 import IframeResizer from "@iframe-resizer/react";
 import { useState } from "react";
 
-export const FeedbackButton = () => {
+export const OverlayWidget = ({ id }: { id: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDrawer = () => {
@@ -43,7 +43,7 @@ export const FeedbackButton = () => {
         {/* Drawer Content */}
         <IframeResizer
           license="GPLv3"
-          src="https://1a86a2d8-e4ce-4fc0-a886-0f1bcacbfa6e.feedbackland.com"
+          src={`https://${id}.feedbackland.com`}
           style={{
             width: "700px",
             height: "100vh",

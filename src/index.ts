@@ -1,1 +1,1 @@
-export { FeedbackButton } from "./FeedbackButton";
+export { OverlayWidget } from "./OverlayWidget";

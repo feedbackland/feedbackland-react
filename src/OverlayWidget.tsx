@@ -1,11 +1,12 @@
 "use client";
 
-import { IframeResizer } from "@open-iframe-resizer/react";
+// import { IframeResizer } from "@open-iframe-resizer/react";
+import IframeResizer from "@iframe-resizer/react";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
-import { RemoveScroll } from "react-remove-scroll";
+// import { RemoveScroll } from "react-remove-scroll";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -109,7 +110,7 @@ export const OverlayWidget = ({
               aria-modal="true"
               aria-labelledby="drawer-title"
             >
-              {!!((isOpen || isIframePreloaded) && subdomain) && (
+              {/* {!!((isOpen || isIframePreloaded) && subdomain) && (
                 <RemoveScroll enabled={isOpen}>
                   <IframeResizer
                     width="100%"
@@ -118,6 +119,20 @@ export const OverlayWidget = ({
                     }`}
                   />
                 </RemoveScroll>
+              )} */}
+
+              {!!((isOpen || isIframePreloaded) && subdomain) && (
+                <IframeResizer
+                  license="GPLv3"
+                  src={`https://${subdomain}.feedbackland.com${
+                    mode && `?mode=${mode}`
+                  }`}
+                  style={{
+                    width: "100%",
+                    height: "100vh",
+                  }}
+                  waitForLoad={false}
+                />
               )}
 
               <button

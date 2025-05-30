@@ -27,14 +27,17 @@ export const OverlayWidget = ({
   const [subdomain, setSubdomain] = useState<string | null>(null);
 
   useEffect(() => {
+    const originalBodyOverflow = document?.body?.style?.overflow || "";
+
     if (isOpen) {
-      document.body.style.overflow = "clip";
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalBodyOverflow;
     }
 
+    // Cleanup function to restore scroll on unmount or when modal closes
     return () => {
-      document.body.style.overflow = ""; // Cleanup on unmount
+      document.body.style.overflow = originalBodyOverflow;
     };
   }, [isOpen]);
 
@@ -113,7 +116,7 @@ export const OverlayWidget = ({
 
             <div
               className={cn(
-                "fixed top-0 bottom-0 right-0 w-[700px] bg-white z-2147483646 transform transition-transform duration-300 ease-in-out overflow-y-auto",
+                "fixed top-0 bottom-0 right-0 w-[700px] bg-white z-2147483646 transform transition-transform duration-300 ease-in-out overflow-y-auto overscroll-contain",
                 isOpen ? "translate-x-0" : "translate-x-full",
                 mode === "dark" && "bg-[#0A0A0A]"
               )}
@@ -129,21 +132,6 @@ export const OverlayWidget = ({
                   }`}
                 />
               )}
-
-              {/* {!!((isOpen || isIframePreloaded) && subdomain) && (
-                <IframeResizer
-                  license="GPLv3"
-                  src={`https://${subdomain}.feedbackland.com${
-                    mode && `?mode=${mode}`
-                  }`}
-                  style={{
-                    width: "100%",
-                    height: "100vh",
-                  }}
-                  // @ts-expect-error missing waitForLoad prop
-                  waitForLoad={false}
-                />
-              )} */}
 
               <button
                 onClick={close}

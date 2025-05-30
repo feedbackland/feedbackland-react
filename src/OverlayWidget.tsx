@@ -1,7 +1,7 @@
 "use client";
 
-// import { IframeResizer } from "@open-iframe-resizer/react";
-import IframeResizer from "@iframe-resizer/react";
+import { IframeResizer } from "@open-iframe-resizer/react";
+// import IframeResizer from "@iframe-resizer/react";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
@@ -110,18 +110,16 @@ export const OverlayWidget = ({
               aria-modal="true"
               aria-labelledby="drawer-title"
             >
-              {/* {!!((isOpen || isIframePreloaded) && subdomain) && (
-                <RemoveScroll enabled={isOpen}>
-                  <IframeResizer
-                    width="100%"
-                    src={`https://${subdomain}.feedbackland.com${
-                      mode && `?mode=${mode}`
-                    }`}
-                  />
-                </RemoveScroll>
-              )} */}
-
               {!!((isOpen || isIframePreloaded) && subdomain) && (
+                <IframeResizer
+                  width="100%"
+                  src={`https://${subdomain}.feedbackland.com${
+                    mode && `?mode=${mode}`
+                  }`}
+                />
+              )}
+
+              {/* {!!((isOpen || isIframePreloaded) && subdomain) && (
                 <IframeResizer
                   license="GPLv3"
                   src={`https://${subdomain}.feedbackland.com${
@@ -131,9 +129,10 @@ export const OverlayWidget = ({
                     width: "100%",
                     height: "100vh",
                   }}
+                  // @ts-expect-error missing waitForLoad prop
                   waitForLoad={false}
                 />
-              )}
+              )} */}
 
               <button
                 onClick={close}

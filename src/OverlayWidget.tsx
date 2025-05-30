@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
-// import { RemoveScroll } from "react-remove-scroll";
+import { RemoveScroll } from "react-remove-scroll";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -110,14 +110,16 @@ export const OverlayWidget = ({
               aria-modal="true"
               aria-labelledby="drawer-title"
             >
-              {!!((isOpen || isIframePreloaded) && subdomain) && (
-                <IframeResizer
-                  width="100%"
-                  src={`https://${subdomain}.feedbackland.com${
-                    mode && `?mode=${mode}`
-                  }`}
-                />
-              )}
+              <RemoveScroll enabled={isOpen}>
+                {!!((isOpen || isIframePreloaded) && subdomain) && (
+                  <IframeResizer
+                    width="100%"
+                    src={`https://${subdomain}.feedbackland.com${
+                      mode && `?mode=${mode}`
+                    }`}
+                  />
+                )}
+              </RemoveScroll>
 
               {/* {!!((isOpen || isIframePreloaded) && subdomain) && (
                 <IframeResizer

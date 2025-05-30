@@ -1,76 +1,152 @@
 "use client";
 
-import IframeResizer from "@iframe-resizer/react";
-import { useState } from "react";
+import { IframeResizer } from "@open-iframe-resizer/react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from "clsx";
+import { RemoveScroll } from "react-remove-scroll";
 
-export const OverlayWidget = ({ id }: { id: string }) => {
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export const OverlayWidget = ({
+  id,
+  mode = "light",
+  children,
+}: {
+  id: string;
+  mode?: "dark" | "light";
+  children: React.ReactNode;
+}) => {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isIframePreloaded, setisIframePreloaded] = useState(false);
+  const [subdomain, setSubdomain] = useState<string | null>(null);
 
-  const toggleDrawer = () => {
-    setIsOpen(!isOpen);
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    const fetchSubdomain = async () => {
+      try {
+        const response = await fetch(
+          `https://api.feedbackland.com/api/org/upsert-org`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ orgId: id }),
+          }
+        );
+
+        const orgSubdomain: string = await response.json();
+
+        setSubdomain(orgSubdomain);
+      } catch (error) {
+        console.error("Error fetching subdomain:", error);
+      }
+    };
+
+    fetchSubdomain();
+  }, [id]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, [isMounted]);
+
+  const open = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(true);
+    }, 300);
+  };
+
+  const close = () => {
+    setIsOpen(false);
+    setisIframePreloaded(false);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
   };
 
   return (
     <>
-      {/* Button to open the drawer */}
-      <button
-        onClick={toggleDrawer}
-        className=" px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-      >
-        {isOpen ? "Close Drawer" : "Open Drawer"}
-      </button>
-
-      {/* Overlay - visible when drawer is open */}
-      {isOpen && (
-        <div
-          onClick={toggleDrawer} // Close drawer when overlay is clicked
-          className="fixed inset-0 bg-black/40 z-30 transition-opacity duration-300 ease-in-out"
-          aria-hidden="true"
-        ></div>
-      )}
-
-      {/* The Drawer */}
       <div
-        className={`
-          fixed top-0 right-0 h-full w-[700px] bg-white shadow-xl z-40
-          transform transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "translate-x-full"}
-        `}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="drawer-title" // You should add an element with this id inside your drawer for accessibility
+        onClick={open}
+        onMouseEnter={() => {
+          setisIframePreloaded(true);
+        }}
+        className="inline-flex"
       >
-        {/* Drawer Content */}
-        <IframeResizer
-          license="GPLv3"
-          src={`https://${id}.feedbackland.com`}
-          style={{
-            width: "700px",
-            height: "100vh",
-          }}
-        />
-
-        {/* <button
-            onClick={toggleDrawer}
-            className="absolute top-2 right-2 text-black"
-            aria-label="Close drawer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button> */}
+        {children}
       </div>
+
+      {isMounted &&
+        createPortal(
+          <>
+            {isOpen && (
+              <div
+                onClick={close} // Close drawer when overlay is clicked
+                className={cn(
+                  "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-300 ease-in-out "
+                )}
+                aria-hidden="true"
+              ></div>
+            )}
+
+            <div
+              className={cn(
+                "fixed top-0 bottom-0 right-0 w-[700px] bg-white z-2147483646 transform transition-transform duration-300 ease-in-out overflow-y-auto",
+                isOpen ? "translate-x-0" : "translate-x-full",
+                mode === "dark" && "bg-[#0A0A0A]"
+              )}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="drawer-title"
+            >
+              {!!((isOpen || isIframePreloaded) && subdomain) && (
+                <RemoveScroll enabled={isOpen}>
+                  <IframeResizer
+                    width="100%"
+                    src={`https://${subdomain}.feedbackland.com${
+                      mode && `?mode=${mode}`
+                    }`}
+                  />
+                </RemoveScroll>
+              )}
+
+              <button
+                onClick={close}
+                className={cn(
+                  "absolute top-1.5 left-1.5 text-white cursor-pointer hover:text-white",
+                  mode === "light" && "text-black hover:text-black"
+                )}
+                aria-label="Close drawer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="size-4.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </>,
+          document?.body
+        )}
     </>
   );
 };

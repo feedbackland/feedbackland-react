@@ -1,12 +1,11 @@
 "use client";
 
 import { IframeResizer } from "@open-iframe-resizer/react";
-// import IframeResizer from "@iframe-resizer/react";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
-import { RemoveScroll } from "react-remove-scroll";
+// import { RemoveScroll } from "react-remove-scroll";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -26,6 +25,18 @@ export const OverlayWidget = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isIframePreloaded, setisIframePreloaded] = useState(false);
   const [subdomain, setSubdomain] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "clip";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = ""; // Cleanup on unmount
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!id) {
@@ -110,16 +121,14 @@ export const OverlayWidget = ({
               aria-modal="true"
               aria-labelledby="drawer-title"
             >
-              <RemoveScroll enabled={isOpen}>
-                {!!((isOpen || isIframePreloaded) && subdomain) && (
-                  <IframeResizer
-                    width="100%"
-                    src={`https://${subdomain}.feedbackland.com${
-                      mode && `?mode=${mode}`
-                    }`}
-                  />
-                )}
-              </RemoveScroll>
+              {!!((isOpen || isIframePreloaded) && subdomain) && (
+                <IframeResizer
+                  width="100%"
+                  src={`https://${subdomain}.feedbackland.com${
+                    mode && `?mode=${mode}`
+                  }`}
+                />
+              )}
 
               {/* {!!((isOpen || isIframePreloaded) && subdomain) && (
                 <IframeResizer

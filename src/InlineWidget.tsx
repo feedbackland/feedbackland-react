@@ -1,7 +1,7 @@
 "use client";
 
 import { IframeResizer } from "@open-iframe-resizer/react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const InlineWidget = ({
   id,
@@ -9,7 +9,6 @@ export const InlineWidget = ({
 }: {
   id: string;
   mode?: "dark" | "light";
-  children: React.ReactNode;
 }) => {
   const [subdomain, setSubdomain] = useState<string | null>(null);
 

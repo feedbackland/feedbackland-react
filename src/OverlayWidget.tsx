@@ -13,6 +13,7 @@ function getParentScrollY(element: HTMLElement) {
   while (parent) {
     if (parent.scrollTop > 0) {
       const style = window.getComputedStyle(parent);
+
       if (style.overflowY === "auto" || style.overflowY === "scroll") {
         return parent.scrollTop;
       }
@@ -20,6 +21,7 @@ function getParentScrollY(element: HTMLElement) {
 
     parent = (parent as HTMLElement)?.offsetParent;
   }
+
   return window.scrollY || 0;
 }
 
@@ -42,6 +44,7 @@ export const OverlayWidget = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isIframePreloaded, setisIframePreloaded] = useState(false);
   const [subdomain, setSubdomain] = useState<string | null>(null);
+  const [colorMode, setColorMode] = useState(mode);
 
   useEffect(() => {
     const originalBodyOverflow = document?.body?.style?.overflow || "";
@@ -102,13 +105,16 @@ export const OverlayWidget = ({
       const connection = connect({
         messenger,
         methods: {
-          getScrollY: () =>
-            Promise.resolve(getParentScrollY(iframeRef.current!)),
+          getScrollY: () => {
+            Promise.resolve(getParentScrollY(iframeRef.current!));
+          },
+          selectedColorMode: (colorMode: "light" | "dark") => {
+            setColorMode(colorMode);
+          },
         },
       });
 
       return () => {
-        console.log("destroy");
         connection.destroy();
       };
     }
@@ -149,9 +155,9 @@ export const OverlayWidget = ({
           <>
             {isOpen && (
               <div
-                onClick={close}
+                onClick={close} // Close drawer when overlay is clicked
                 className={cn(
-                  "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-300 ease-in-out "
+                  "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-300 ease-in-out"
                 )}
                 aria-hidden="true"
               ></div>
@@ -159,9 +165,9 @@ export const OverlayWidget = ({
 
             <div
               className={cn(
-                "fixed top-0 bottom-0 right-0 w-[700px] bg-white z-2147483646 transform transition-transform duration-300 ease-in-out overflow-y-auto overscroll-contain",
+                "fixed top-0 bottom-0 right-0 w-[680px] bg-white z-2147483646 transform transition-transform duration-300 ease-in-out overflow-y-auto overscroll-contain",
                 isOpen ? "translate-x-0" : "translate-x-full",
-                mode === "dark" && "bg-[#0A0A0A]"
+                colorMode === "dark" && "bg-[#0A0A0A]"
               )}
               role="dialog"
               aria-modal="true"
@@ -175,7 +181,7 @@ export const OverlayWidget = ({
                 onClick={close}
                 className={cn(
                   "absolute top-1.5 left-1.5 text-white cursor-pointer hover:text-white",
-                  mode === "light" && "text-black hover:text-black"
+                  colorMode === "light" && "text-black hover:text-black"
                 )}
                 aria-label="Close drawer"
               >

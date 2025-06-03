@@ -5,7 +5,23 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
-// import { RemoveScroll } from "react-remove-scroll";
+import { WindowMessenger, connect } from "penpal";
+
+function getParentScrollY(element: HTMLElement) {
+  let parent = element?.offsetParent;
+
+  while (parent) {
+    if (parent.scrollTop > 0) {
+      const style = window.getComputedStyle(parent);
+      if (style.overflowY === "auto" || style.overflowY === "scroll") {
+        return parent.scrollTop;
+      }
+    }
+
+    parent = (parent as HTMLElement)?.offsetParent;
+  }
+  return window.scrollY || 0;
+}
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,6 +36,7 @@ export const OverlayWidget = ({
   mode?: "dark" | "light";
   children: React.ReactNode;
 }) => {
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +52,6 @@ export const OverlayWidget = ({
       document.body.style.overflow = originalBodyOverflow;
     }
 
-    // Cleanup function to restore scroll on unmount or when modal closes
     return () => {
       document.body.style.overflow = originalBodyOverflow;
     };
@@ -74,6 +90,30 @@ export const OverlayWidget = ({
     setIsMounted(true);
   }, [isMounted]);
 
+  useEffect(() => {
+    if (subdomain && isOpen) {
+      if (!iframeRef.current) return;
+
+      const messenger = new WindowMessenger({
+        remoteWindow: iframeRef.current.contentWindow!,
+        allowedOrigins: ["*"],
+      });
+
+      const connection = connect({
+        messenger,
+        methods: {
+          getScrollY: () =>
+            Promise.resolve(getParentScrollY(iframeRef.current!)),
+        },
+      });
+
+      return () => {
+        console.log("destroy");
+        connection.destroy();
+      };
+    }
+  }, [isOpen, subdomain]);
+
   const open = () => {
     timeoutRef.current = setTimeout(() => {
       setIsOpen(true);
@@ -88,6 +128,9 @@ export const OverlayWidget = ({
       clearTimeout(timeoutRef.current);
     }
   };
+
+  const url = `https://${subdomain}.feedbackland.com${mode && `?mode=${mode}`}`;
+  // const url = `http://localhost:3000/${subdomain}${mode && `?mode=${mode}`}`;
 
   return (
     <>
@@ -106,7 +149,7 @@ export const OverlayWidget = ({
           <>
             {isOpen && (
               <div
-                onClick={close} // Close drawer when overlay is clicked
+                onClick={close}
                 className={cn(
                   "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-300 ease-in-out "
                 )}
@@ -125,12 +168,7 @@ export const OverlayWidget = ({
               aria-labelledby="drawer-title"
             >
               {!!((isOpen || isIframePreloaded) && subdomain) && (
-                <IframeResizer
-                  width="100%"
-                  src={`https://${subdomain}.feedbackland.com${
-                    mode && `?mode=${mode}`
-                  }`}
-                />
+                <IframeResizer width="100%" ref={iframeRef} src={url} />
               )}
 
               <button

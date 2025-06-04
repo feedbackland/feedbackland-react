@@ -102,7 +102,7 @@ export const OverlayWidget = ({
   const open = () => {
     timeoutRef.current = setTimeout(() => {
       setIsOpen(true);
-    }, 300);
+    }, 200);
   };
 
   const close = () => {
@@ -121,9 +121,9 @@ export const OverlayWidget = ({
     <>
       <div
         onClick={open}
-        onMouseEnter={() => {
-          setisIframePreloaded(true);
-        }}
+        // onMouseEnter={() => {
+        //   setisIframePreloaded(true);
+        // }}
         className="inline-flex"
       >
         {children}
@@ -136,7 +136,7 @@ export const OverlayWidget = ({
               <div
                 onClick={close} // Close drawer when overlay is clicked
                 className={cn(
-                  "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-300 ease-in-out"
+                  "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-200 ease-out"
                 )}
                 aria-hidden="true"
               ></div>
@@ -144,7 +144,7 @@ export const OverlayWidget = ({
 
             <div
               className={cn(
-                "fixed top-0 bottom-0 right-0 w-[680px] bg-white z-2147483646 transform transition-transform duration-300 ease-in-out overflow-y-auto overscroll-contain",
+                "fixed top-0 bottom-0 right-0 w-full sm:w-[680px] 2xl:w-[700px] bg-white z-2147483646 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain",
                 isOpen ? "translate-x-0" : "translate-x-full",
                 colorMode === "dark" && "bg-[#0A0A0A]"
               )}

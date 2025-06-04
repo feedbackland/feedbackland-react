@@ -1,29 +1,10 @@
 "use client";
 
-import { IframeResizer } from "@open-iframe-resizer/react";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
 import { WindowMessenger, connect } from "penpal";
-
-const getParentScrollY = (element: HTMLElement) => {
-  let parent = element?.offsetParent;
-
-  while (parent) {
-    if (parent.scrollTop > 0) {
-      const style = window.getComputedStyle(parent);
-
-      if (style.overflowY === "auto" || style.overflowY === "scroll") {
-        return parent.scrollTop;
-      }
-    }
-
-    parent = (parent as HTMLElement)?.offsetParent;
-  }
-
-  return window.scrollY || 0;
-};
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -105,10 +86,6 @@ export const OverlayWidget = ({
       const connection = connect({
         messenger,
         methods: {
-          getScrollY: () => {
-            // Promise.resolve(getParentScrollY(iframeRef.current!));
-            return getParentScrollY(iframeRef.current!);
-          },
           setColorMode: (colorMode: "light" | "dark") => {
             setColorMode(colorMode);
           },
@@ -175,7 +152,18 @@ export const OverlayWidget = ({
               aria-labelledby="drawer-title"
             >
               {!!((isOpen || isIframePreloaded) && subdomain) && (
-                <IframeResizer width="100%" ref={iframeRef} src={url} />
+                <iframe
+                  title="Share your feedback"
+                  src={url}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                  }}
+                />
               )}
 
               <button

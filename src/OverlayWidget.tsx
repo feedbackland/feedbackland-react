@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
 import { WindowMessenger, connect } from "penpal";
 
-function getParentScrollY(element: HTMLElement) {
+const getParentScrollY = (element: HTMLElement) => {
   let parent = element?.offsetParent;
 
   while (parent) {
@@ -23,7 +23,7 @@ function getParentScrollY(element: HTMLElement) {
   }
 
   return window.scrollY || 0;
-}
+};
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -106,9 +106,10 @@ export const OverlayWidget = ({
         messenger,
         methods: {
           getScrollY: () => {
-            Promise.resolve(getParentScrollY(iframeRef.current!));
+            // Promise.resolve(getParentScrollY(iframeRef.current!));
+            return getParentScrollY(iframeRef.current!);
           },
-          selectedColorMode: (colorMode: "light" | "dark") => {
+          setColorMode: (colorMode: "light" | "dark") => {
             setColorMode(colorMode);
           },
         },

@@ -87,6 +87,7 @@ export const OverlayWidget = ({
         messenger,
         methods: {
           setColorMode: (colorMode: "light" | "dark") => {
+            console.log(colorMode);
             setColorMode(colorMode);
           },
         },
@@ -153,6 +154,7 @@ export const OverlayWidget = ({
             >
               {!!((isOpen || isIframePreloaded) && subdomain) && (
                 <iframe
+                  ref={iframeRef}
                   title="Share your feedback"
                   src={url}
                   style={{

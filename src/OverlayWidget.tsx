@@ -23,7 +23,6 @@ export const OverlayWidget = ({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [isIframePreloaded, setisIframePreloaded] = useState(false);
   const [subdomain, setSubdomain] = useState<string | null>(null);
   const [colorMode, setColorMode] = useState(mode);
 
@@ -107,7 +106,6 @@ export const OverlayWidget = ({
 
   const close = () => {
     setIsOpen(false);
-    setisIframePreloaded(false);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -119,13 +117,7 @@ export const OverlayWidget = ({
 
   return (
     <>
-      <div
-        onClick={open}
-        // onMouseEnter={() => {
-        //   setisIframePreloaded(true);
-        // }}
-        className="inline-flex"
-      >
+      <div onClick={open} className="inline-flex">
         {children}
       </div>
 
@@ -150,9 +142,9 @@ export const OverlayWidget = ({
               )}
               role="dialog"
               aria-modal="true"
-              aria-labelledby="drawer-title"
+              aria-labelledby="Feedback board"
             >
-              {!!((isOpen || isIframePreloaded) && subdomain) && (
+              {!!(isOpen && subdomain) && (
                 <iframe
                   ref={iframeRef}
                   title="Share your feedback"
@@ -171,10 +163,10 @@ export const OverlayWidget = ({
               <button
                 onClick={close}
                 className={cn(
-                  "absolute top-1.5 left-1.5 text-white cursor-pointer hover:text-white",
-                  colorMode === "light" && "text-black hover:text-black"
+                  "absolute top-1.5 left-1.5 text-white/70 cursor-pointer hover:text-white z-10",
+                  colorMode === "light" && "text-black/70 hover:text-black"
                 )}
-                aria-label="Close drawer"
+                aria-label="Close feedback board"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -113,7 +113,6 @@ export const OverlayWidget = ({
   };
 
   const url = `https://${subdomain}.feedbackland.com${mode && `?mode=${mode}`}`;
-  // const url = `http://localhost:3000/${subdomain}${mode && `?mode=${mode}`}`;
 
   return (
     <>
@@ -163,14 +162,14 @@ export const OverlayWidget = ({
               <button
                 onClick={close}
                 className={cn(
-                  "absolute top-1.5 left-1.5 text-white/70 cursor-pointer hover:text-white z-10",
+                  "absolute top-1 left-1 text-white/70 cursor-pointer hover:text-white z-100",
                   colorMode === "light" && "text-black/70 hover:text-black"
                 )}
                 aria-label="Close feedback board"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-4.5"
+                  className="size-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

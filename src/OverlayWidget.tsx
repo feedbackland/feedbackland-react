@@ -14,26 +14,24 @@ export const OverlayWidget = ({
   id,
   mode = "light",
   children,
+  className,
 }: {
   id: string;
   mode?: "dark" | "light";
   children: React.ReactNode;
+  className?: React.ComponentProps<"div">["className"];
 }) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [showIframe, setShowIframe] = useState(false);
   const [subdomain, setSubdomain] = useState<string | null>(null);
   const [colorMode, setColorMode] = useState(mode);
 
   useEffect(() => {
     const originalBodyOverflow = document?.body?.style?.overflow || "";
-
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = originalBodyOverflow;
-    }
+    document.body.style.overflow = isOpen ? "hidden" : originalBodyOverflow;
 
     return () => {
       document.body.style.overflow = originalBodyOverflow;
@@ -41,9 +39,11 @@ export const OverlayWidget = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!id) {
-      return;
-    }
+    setIsMounted(true);
+  }, [isMounted]);
+
+  useEffect(() => {
+    if (!id || !showIframe) return;
 
     const fetchSubdomain = async () => {
       try {
@@ -67,38 +67,34 @@ export const OverlayWidget = ({
     };
 
     fetchSubdomain();
-  }, [id]);
+  }, [id, showIframe]);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, [isMounted]);
+    if (!subdomain || !showIframe || !iframeRef.current) return;
 
-  useEffect(() => {
-    if (subdomain && isOpen) {
-      if (!iframeRef.current) return;
+    const messenger = new WindowMessenger({
+      remoteWindow: iframeRef.current.contentWindow!,
+      allowedOrigins: ["*"],
+    });
 
-      const messenger = new WindowMessenger({
-        remoteWindow: iframeRef.current.contentWindow!,
-        allowedOrigins: ["*"],
-      });
-
-      const connection = connect({
-        messenger,
-        methods: {
-          setColorMode: (colorMode: "light" | "dark") => {
-            console.log(colorMode);
-            setColorMode(colorMode);
-          },
+    const connection = connect({
+      messenger,
+      methods: {
+        setColorMode: (colorMode: "light" | "dark") => {
+          setColorMode(colorMode);
         },
-      });
+      },
+    });
 
-      return () => {
-        connection.destroy();
-      };
-    }
-  }, [isOpen, subdomain]);
+    return () => {
+      connection.destroy();
+    };
+  }, [subdomain, showIframe]);
 
   const open = () => {
+    setColorMode(mode);
+    setShowIframe(true);
+
     timeoutRef.current = setTimeout(() => {
       setIsOpen(true);
     }, 200);
@@ -106,28 +102,36 @@ export const OverlayWidget = ({
 
   const close = () => {
     setIsOpen(false);
+    setShowIframe(false);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
   };
 
-  const url = `https://${subdomain}.feedbackland.com${mode && `?mode=${mode}`}`;
+  const onButtonHover = () => {
+    setShowIframe(true);
+  };
 
   return (
     <>
-      <div onClick={open} className="inline-flex">
+      <div
+        onClick={open}
+        className={cn("inline-flex", className)}
+        onMouseEnter={onButtonHover}
+      >
         {children}
       </div>
 
       {isMounted &&
+        document &&
         createPortal(
           <>
             {isOpen && (
               <div
-                onClick={close} // Close drawer when overlay is clicked
+                onClick={close}
                 className={cn(
-                  "fixed inset-0 bg-black/40 z-2147483645 transition-opacity duration-200 ease-out"
+                  "fixed inset-0 bg-black/80 z-2147483645 transition-opacity duration-200 ease-out backdrop-blur-xs"
                 )}
                 aria-hidden="true"
               ></div>
@@ -135,34 +139,31 @@ export const OverlayWidget = ({
 
             <div
               className={cn(
-                "fixed top-0 bottom-0 right-0 w-full sm:w-[680px] 2xl:w-[700px] bg-white z-2147483646 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain",
+                "fixed top-0 bottom-0 right-0 w-full sm:w-[680px] 2xl:w-[700px] bg-white z-2147483646 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain ",
                 isOpen ? "translate-x-0" : "translate-x-full",
-                colorMode === "dark" && "bg-[#0A0A0A]"
+                colorMode === "dark" &&
+                  "bg-[#0A0A0A] border-l-1 border-l-white/10"
               )}
               role="dialog"
               aria-modal="true"
               aria-labelledby="Feedback board"
             >
-              {!!(isOpen && subdomain) && (
+              {!!(showIframe && subdomain) && (
                 <iframe
                   ref={iframeRef}
                   title="Share your feedback"
-                  src={url}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                  }}
+                  src={`https://${subdomain}.feedbackland.com${
+                    mode && `?mode=${mode}`
+                  }`}
+                  className="absolute top-0 left-0 w-full h-full border-none"
+                  allow="clipboard-write 'src'"
                 />
               )}
 
               <button
                 onClick={close}
                 className={cn(
-                  "absolute top-1 left-1 text-white/70 cursor-pointer hover:text-white z-100",
+                  "absolute top-1.5 left-1.5 text-white/70 cursor-pointer hover:text-white z-100  rounded-[4px] size-4.5 flex items-center justify-center",
                   colorMode === "light" && "text-black/70 hover:text-black"
                 )}
                 aria-label="Close feedback board"
@@ -171,7 +172,7 @@ export const OverlayWidget = ({
                   xmlns="http://www.w3.org/2000/svg"
                   className="size-4"
                   fill="none"
-                  viewBox="0 0 24 24"
+                  viewBox="0 0 25 25"
                   stroke="currentColor"
                 >
                   <path
@@ -184,7 +185,7 @@ export const OverlayWidget = ({
               </button>
             </div>
           </>,
-          document?.body
+          document.body
         )}
     </>
   );

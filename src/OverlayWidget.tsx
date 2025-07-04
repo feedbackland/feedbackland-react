@@ -30,17 +30,12 @@ export const OverlayWidget = ({
   const [colorMode, setColorMode] = useState(mode);
 
   useEffect(() => {
-    const originalBodyOverflow = document?.body?.style?.overflow || "";
-    document.body.style.overflow = isOpen ? "hidden" : originalBodyOverflow;
-
-    return () => {
-      document.body.style.overflow = originalBodyOverflow;
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
     setIsMounted(true);
   }, [isMounted]);
+
+  useEffect(() => {
+    setColorMode(mode);
+  }, [mode]);
 
   useEffect(() => {
     if (!id || !showIframe) return;
@@ -70,6 +65,15 @@ export const OverlayWidget = ({
   }, [id, showIframe]);
 
   useEffect(() => {
+    const originalBodyOverflow = document?.body?.style?.overflow || "";
+    document.body.style.overflow = isOpen ? "hidden" : originalBodyOverflow;
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (!subdomain || !showIframe || !iframeRef.current) return;
 
     const messenger = new WindowMessenger({
@@ -88,25 +92,20 @@ export const OverlayWidget = ({
 
     return () => {
       connection.destroy();
+      messenger.destroy();
     };
   }, [subdomain, showIframe]);
 
   const open = () => {
-    setColorMode(mode);
     setShowIframe(true);
-
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(true);
-    }, 200);
+    setColorMode(mode);
+    timeoutRef.current = setTimeout(() => setIsOpen(true), 200);
   };
 
   const close = () => {
     setIsOpen(false);
     setShowIframe(false);
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
 
   const onButtonHover = () => {

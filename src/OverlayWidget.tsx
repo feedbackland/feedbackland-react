@@ -130,7 +130,7 @@ export const OverlayWidget = ({
               <div
                 onClick={close}
                 className={cn(
-                  "fixed inset-0 bg-black/80 z-2147483645 transition-opacity duration-200 ease-out backdrop-blur-xs"
+                  "fixed bg-black/80 z-2000000000 transition-opacity duration-200 ease-out backdrop-blur-xs"
                 )}
                 aria-hidden="true"
               ></div>
@@ -138,7 +138,7 @@ export const OverlayWidget = ({
 
             <div
               className={cn(
-                "fixed top-0 bottom-0 right-0 w-full sm:w-[680px] 2xl:w-[700px] bg-white z-2147483646 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain ",
+                "fixed top-0 bottom-0 right-0 w-screen sm:w-[680px] 2xl:w-[700px] bg-white z-2000000010 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain ",
                 isOpen ? "translate-x-0" : "translate-x-full",
                 colorMode === "dark" &&
                   "bg-[#0A0A0A] border-l-1 border-l-white/10"
@@ -162,7 +162,7 @@ export const OverlayWidget = ({
               <button
                 onClick={close}
                 className={cn(
-                  "absolute top-1.5 left-1.5 text-white/70 cursor-pointer hover:text-white z-100  rounded-[4px] size-4.5 flex items-center justify-center",
+                  "absolute top-1 left-1 sm:top-1.5 sm:left-1.5 text-white/70 cursor-pointer hover:text-white z-2000000020 rounded-[5px] size-5 flex items-center justify-center",
                   colorMode === "light" && "text-black/70 hover:text-black"
                 )}
                 aria-label="Close feedback board"
@@ -177,7 +177,7 @@ export const OverlayWidget = ({
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>

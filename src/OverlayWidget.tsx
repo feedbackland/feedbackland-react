@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
 import { WindowMessenger, connect } from "penpal";
+import { isMobileOnly } from "react-device-detect";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -112,6 +113,18 @@ export const OverlayWidget = ({
     setShowIframe(true);
   };
 
+  if (isMobileOnly) {
+    return (
+      <a
+        href={`https://${id}.feedbackland.com${mode && `?mode=${mode}`}`}
+        className={cn("inline-flex", className)}
+        style={{ all: "unset" }}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <>
       <div
@@ -130,7 +143,7 @@ export const OverlayWidget = ({
               <div
                 onClick={close}
                 className={cn(
-                  "fixed bg-black/80 z-2000000000 transition-opacity duration-200 ease-out backdrop-blur-xs"
+                  "fixed inset-0 bg-black/80 z-2147483644 transition-opacity duration-200 ease-out backdrop-blur-xs"
                 )}
                 aria-hidden="true"
               ></div>
@@ -138,7 +151,7 @@ export const OverlayWidget = ({
 
             <div
               className={cn(
-                "fixed top-0 bottom-0 right-0 w-screen sm:w-[680px] 2xl:w-[700px] bg-white z-2000000010 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain ",
+                "fixed top-0 bottom-0 right-0 w-screen sm:w-[680px] 2xl:w-[700px] bg-white z-2147483645 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain ",
                 isOpen ? "translate-x-0" : "translate-x-full",
                 colorMode === "dark" &&
                   "bg-[#0A0A0A] border-l-1 border-l-white/10"
@@ -147,41 +160,44 @@ export const OverlayWidget = ({
               aria-modal="true"
               aria-labelledby="Feedback board"
             >
-              {!!(showIframe && subdomain) && (
-                <iframe
-                  ref={iframeRef}
-                  title="Share your feedback"
-                  src={`https://${subdomain}.feedbackland.com${
-                    mode && `?mode=${mode}`
-                  }`}
-                  className="absolute top-0 left-0 w-full h-full border-none"
-                  allow="clipboard-write 'src'"
-                />
-              )}
-
-              <button
-                onClick={close}
-                className={cn(
-                  "absolute top-1 left-1 sm:top-1.5 sm:left-1.5 text-white/70 cursor-pointer hover:text-white z-2000000020 rounded-[5px] size-5 flex items-center justify-center",
-                  colorMode === "light" && "text-black/70 hover:text-black"
-                )}
-                aria-label="Close feedback board"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="size-4"
-                  fill="none"
-                  viewBox="0 0 25 25"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M6 18L18 6M6 6l12 12"
+              <div className="relative w-full h-full">
+                {!!(showIframe && subdomain) && (
+                  <iframe
+                    ref={iframeRef}
+                    title="Share your feedback"
+                    src={`https://${subdomain}.feedbackland.com${
+                      mode && `?mode=${mode}`
+                    }`}
+                    className="absolute top-0 left-0 w-full h-full border-none z-10"
+                    allow="clipboard-write 'src'"
                   />
-                </svg>
-              </button>
+                )}
+
+                <button
+                  onClick={close}
+                  onTouchEnd={close}
+                  className={cn(
+                    "absolute top-0 left-0 text-white/70 cursor-pointer hover:text-white z-20 size-8 flex items-center justify-center transform translate-z-0",
+                    colorMode === "light" && "text-black/70 hover:text-black"
+                  )}
+                  aria-label="Close feedback board"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="size-4"
+                    fill="none"
+                    viewBox="0 0 25 25"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </>,
           document.body

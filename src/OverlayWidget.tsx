@@ -32,13 +32,8 @@ export const OverlayWidget = memo(
     const [colorMode, setColorMode] = useState(mode);
 
     useEffect(() => {
-      if (isMounted) return;
       setIsMounted(true);
-    }, [isMounted]);
-
-    useEffect(() => {
-      setColorMode(mode);
-    }, [mode]);
+    }, []);
 
     useEffect(() => {
       if (!id || !showIframe) return;
@@ -107,6 +102,7 @@ export const OverlayWidget = memo(
     const close = () => {
       setIsOpen(false);
       setShowIframe(false);
+      setColorMode(mode);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
 
@@ -117,7 +113,7 @@ export const OverlayWidget = memo(
     if (isMobileOnly) {
       return (
         <a
-          href={`https://${id}.feedbackland.com${mode && `?mode=${mode}`}`}
+          href={`https://${id}.feedbackland.com?mode=${mode}`}
           className={cn("inline-flex", className)}
           style={{ all: "unset" }}
         >
@@ -162,17 +158,17 @@ export const OverlayWidget = memo(
                 aria-labelledby="Feedback board"
               >
                 <div className="relative w-full h-full">
-                  {!!(showIframe && subdomain) && (
-                    <iframe
-                      ref={iframeRef}
-                      title="Share your feedback"
-                      src={`https://${subdomain}.feedbackland.com${
-                        mode && `?mode=${mode}`
-                      }`}
-                      className="absolute top-0 left-0 w-full h-full border-none z-10"
-                      allow="clipboard-write 'src'"
-                    />
-                  )}
+                  <iframe
+                    ref={iframeRef}
+                    title="Share your feedback"
+                    src={
+                      !!(showIframe && subdomain)
+                        ? `https://${subdomain}.feedbackland.com?mode=${mode}`
+                        : undefined
+                    }
+                    className="absolute top-0 left-0 w-full h-full border-none z-10"
+                    allow="clipboard-write 'src'"
+                  />
 
                   <button
                     onClick={close}

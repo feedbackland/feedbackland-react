@@ -11,14 +11,40 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const getPlatformUrl = ({
+  id,
+  subdomain,
+  url,
+  mode,
+  isMobile,
+}: {
+  id: string;
+  subdomain: string | null;
+  url?: string;
+  mode?: "dark" | "light";
+  isMobile: boolean;
+}) => {
+  if (url) {
+    return `${url}?mode=${mode}`;
+  } else if (isMobile) {
+    return `https://${id}.feedbackland.com?mode=${mode}`;
+  } else if (subdomain) {
+    return `https://${subdomain}.feedbackland.com?mode=${mode}`;
+  }
+
+  return undefined;
+};
+
 export const OverlayWidget = memo(
   ({
     id,
+    url,
     mode = "dark",
     children,
     className,
   }: {
     id: string;
+    url?: string;
     mode?: "dark" | "light";
     children: React.ReactNode;
     className?: React.ComponentProps<"div">["className"];
@@ -36,7 +62,7 @@ export const OverlayWidget = memo(
     }, []);
 
     useEffect(() => {
-      if (!id || !showIframe) return;
+      if (!id || url || subdomain || !showIframe) return;
 
       const fetchSubdomain = async () => {
         try {
@@ -60,7 +86,7 @@ export const OverlayWidget = memo(
       };
 
       fetchSubdomain();
-    }, [id, showIframe]);
+    }, [id, url, showIframe, subdomain]);
 
     useEffect(() => {
       const originalBodyOverflow = document?.body?.style?.overflow || "";
@@ -72,27 +98,27 @@ export const OverlayWidget = memo(
     }, [isOpen]);
 
     useEffect(() => {
-      if (!subdomain || !showIframe || !iframeRef.current) return;
+      if (!!(url || subdomain) && showIframe && iframeRef.current) {
+        const messenger = new WindowMessenger({
+          remoteWindow: iframeRef.current.contentWindow!,
+          allowedOrigins: ["*"],
+        });
 
-      const messenger = new WindowMessenger({
-        remoteWindow: iframeRef.current.contentWindow!,
-        allowedOrigins: ["*"],
-      });
-
-      const connection = connect({
-        messenger,
-        methods: {
-          setColorMode: (colorMode: "light" | "dark") => {
-            setColorMode(colorMode);
+        const connection = connect({
+          messenger,
+          methods: {
+            setColorMode: (colorMode: "light" | "dark") => {
+              setColorMode(colorMode);
+            },
           },
-        },
-      });
+        });
 
-      return () => {
-        connection.destroy();
-        messenger.destroy();
-      };
-    }, [subdomain, showIframe]);
+        return () => {
+          connection.destroy();
+          messenger.destroy();
+        };
+      }
+    }, [subdomain, url, showIframe]);
 
     const open = () => {
       setShowIframe(true);
@@ -110,10 +136,18 @@ export const OverlayWidget = memo(
       setShowIframe(true);
     };
 
+    const platformUrl = getPlatformUrl({
+      id,
+      subdomain,
+      url,
+      mode,
+      isMobile: isMobileOnly,
+    });
+
     if (isMobileOnly) {
       return (
         <a
-          href={`https://${id}.feedbackland.com?mode=${mode}`}
+          href={platformUrl}
           className={cn("inline-flex", className)}
           style={{ all: "unset" }}
         >
@@ -161,11 +195,7 @@ export const OverlayWidget = memo(
                   <iframe
                     ref={iframeRef}
                     title="Share your feedback"
-                    src={
-                      !!(showIframe && subdomain)
-                        ? `https://${subdomain}.feedbackland.com?mode=${mode}`
-                        : undefined
-                    }
+                    src={showIframe ? platformUrl : undefined}
                     className="absolute top-0 left-0 w-full h-full border-none z-10"
                     allow="clipboard-write 'src'"
                   />

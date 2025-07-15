@@ -6,9 +6,16 @@ import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
 import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
+import { version as uuidVersion } from "uuid";
+import { validate as uuidValidate } from "uuid";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+function uuidValidateV4(uuid: string | null | undefined) {
+  if (!uuid) return false;
+  return uuidValidate(uuid) && uuidVersion(uuid) === 4;
 }
 
 const getPlatformUrl = ({
@@ -144,7 +151,9 @@ export const OverlayWidget = memo(
       isMobile: isMobileOnly,
     });
 
-    if (isMobileOnly) {
+    const isValidID = uuidValidateV4(id);
+
+    if (isMobileOnly && isValidID) {
       return (
         <a
           href={platformUrl}
@@ -192,13 +201,22 @@ export const OverlayWidget = memo(
                 aria-labelledby="Feedback board"
               >
                 <div className="relative w-full h-full">
-                  <iframe
-                    ref={iframeRef}
-                    title="Share your feedback"
-                    src={showIframe ? platformUrl : undefined}
-                    className="absolute top-0 left-0 w-full h-full border-none z-10"
-                    allow="clipboard-write 'src'"
-                  />
+                  {isValidID ? (
+                    <iframe
+                      ref={iframeRef}
+                      title="Share your feedback"
+                      src={showIframe ? platformUrl : undefined}
+                      className="absolute top-0 left-0 w-full h-full border-none z-10"
+                      allow="clipboard-write 'src'"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <div className="text-red-500 text-[16px] p-5">
+                        Error: The provided ID is not valid. Please ensure it is
+                        a correctly formatted UUID version 4.
+                      </div>
+                    </div>
+                  )}
 
                   <button
                     onClick={close}

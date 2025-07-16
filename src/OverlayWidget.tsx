@@ -13,8 +13,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-function uuidValidateV4(uuid: string | null | undefined) {
-  if (!uuid) return false;
+function validateUUID(uuid: string) {
   return uuidValidate(uuid) && uuidVersion(uuid) === 4;
 }
 
@@ -22,7 +21,7 @@ const getPlatformUrl = ({
   id,
   subdomain,
   url,
-  mode,
+  mode = "dark",
   isMobile,
 }: {
   id: string;
@@ -33,7 +32,7 @@ const getPlatformUrl = ({
 }) => {
   if (url) {
     return `${url}?mode=${mode}`;
-  } else if (isMobile) {
+  } else if (isMobile && validateUUID(id)) {
     return `https://${id}.feedbackland.com?mode=${mode}`;
   } else if (subdomain) {
     return `https://${subdomain}.feedbackland.com?mode=${mode}`;
@@ -69,7 +68,7 @@ export const OverlayWidget = memo(
     }, []);
 
     useEffect(() => {
-      if (!id || url || subdomain || !showIframe) return;
+      if (!id || url || subdomain || !showIframe || !validateUUID(id)) return;
 
       const fetchSubdomain = async () => {
         try {
@@ -129,13 +128,17 @@ export const OverlayWidget = memo(
 
     const open = () => {
       setShowIframe(true);
-      timeoutRef.current = setTimeout(() => setIsOpen(true), 200);
+      timeoutRef.current = setTimeout(() => setIsOpen(true), 250);
     };
 
     const close = () => {
       setIsOpen(false);
-      setShowIframe(false);
-      setColorMode(mode);
+
+      setTimeout(() => {
+        setShowIframe(false);
+        setColorMode(mode);
+      }, 250);
+
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
 
@@ -151,7 +154,7 @@ export const OverlayWidget = memo(
       isMobile: isMobileOnly,
     });
 
-    const isValidID = uuidValidateV4(id);
+    const isValidID = validateUUID(id);
 
     if (isMobileOnly && isValidID) {
       return (
@@ -183,7 +186,7 @@ export const OverlayWidget = memo(
                 <div
                   onClick={close}
                   className={cn(
-                    "fixed inset-0 bg-black/80 z-2147483644 transition-opacity duration-200 ease-out backdrop-blur-xs"
+                    "fixed inset-0 bg-black/80 z-2147483644 transition-opacity duration-250 ease-out backdrop-blur-xs"
                   )}
                   aria-hidden="true"
                 ></div>
@@ -191,7 +194,7 @@ export const OverlayWidget = memo(
 
               <div
                 className={cn(
-                  "fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-white z-2147483645 transform transition-transform duration-200 ease-out overflow-y-auto overscroll-contain ",
+                  "fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-white z-2147483645 transform transition-transform duration-250 ease-out overflow-y-auto overscroll-contain ",
                   isOpen ? "translate-x-0" : "translate-x-full",
                   colorMode === "dark" &&
                     "bg-[#0A0A0A] border-l-1 border-l-white/10"
@@ -210,11 +213,18 @@ export const OverlayWidget = memo(
                       allow="clipboard-write 'src'"
                     />
                   ) : (
-                    <div className="flex items-center justify-center">
-                      <div className="text-red-500 text-[16px] p-5">
-                        Error: The provided ID is not valid. Please ensure it is
-                        a correctly formatted UUID version 4.
+                    <div className="w-full h-full flex flex-col items-center justify-center text-red-700 text-[16px] p-5">
+                      <div className=" text-center mb-2">
+                        The ID is missing or incorrect. Please use a valid UUID
+                        v4 as ID.
                       </div>
+                      <a
+                        className="text-center underline"
+                        href="https://www.uuidtools.com/v4"
+                        target="_blank"
+                      >
+                        Generate your UUID v4
+                      </a>
                     </div>
                   )}
 

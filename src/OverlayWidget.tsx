@@ -186,7 +186,7 @@ export const OverlayWidget = memo(
                 <div
                   onClick={close}
                   className={cn(
-                    "fixed inset-0 bg-black/80 z-2147483644 transition-opacity duration-250 ease-out backdrop-blur-xs"
+                    "fixed inset-0 bg-black/80 z-2147483646 transition-opacity duration-250 ease-out backdrop-blur-xs"
                   )}
                   aria-hidden="true"
                 ></div>
@@ -194,7 +194,7 @@ export const OverlayWidget = memo(
 
               <div
                 className={cn(
-                  "fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-white z-2147483645 transform transition-transform duration-250 ease-out overflow-y-auto overscroll-contain ",
+                  "fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-white z-2147483647 transform transition-transform duration-250 ease-out overflow-y-auto overscroll-contain ",
                   isOpen ? "translate-x-0" : "translate-x-full",
                   colorMode === "dark" &&
                     "bg-[#0A0A0A] border-l-1 border-l-white/10"
@@ -209,7 +209,7 @@ export const OverlayWidget = memo(
                       ref={iframeRef}
                       title="Share your feedback"
                       src={showIframe ? platformUrl : undefined}
-                      className="absolute top-0 left-0 w-full h-full border-none z-10"
+                      className="absolute top-0 left-0 w-full h-full border-none"
                       allow="clipboard-write 'src'"
                     />
                   ) : (
@@ -232,7 +232,7 @@ export const OverlayWidget = memo(
                     onClick={close}
                     onTouchEnd={close}
                     className={cn(
-                      "absolute top-0 left-0 text-black/70 cursor-pointer hover:text-black z-20 size-8 flex items-center justify-center transform translate-z-0",
+                      "absolute top-0 left-0 text-black/70 cursor-pointer hover:text-black size-8 flex items-center justify-center",
                       colorMode === "dark" && "text-white/70 hover:text-white"
                     )}
                     aria-label="Close feedback board"

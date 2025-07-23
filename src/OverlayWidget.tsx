@@ -56,7 +56,6 @@ export const OverlayWidget = memo(
     className?: React.ComponentProps<"div">["className"];
   }) => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [showIframe, setShowIframe] = useState(false);
@@ -128,7 +127,7 @@ export const OverlayWidget = memo(
 
     const open = () => {
       setShowIframe(true);
-      timeoutRef.current = setTimeout(() => setIsOpen(true), 250);
+      setTimeout(() => setIsOpen(true), 250);
     };
 
     const close = () => {
@@ -138,8 +137,6 @@ export const OverlayWidget = memo(
         setShowIframe(false);
         setColorMode(mode);
       }, 250);
-
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
 
     const onButtonHover = () => {
@@ -160,7 +157,7 @@ export const OverlayWidget = memo(
       return (
         <a
           href={platformUrl}
-          className={cn("inline-flex", className)}
+          className={cn("", className)}
           style={{ all: "unset" }}
         >
           {children}
@@ -168,11 +165,13 @@ export const OverlayWidget = memo(
       );
     }
 
+    console.log("platformUrl", platformUrl);
+
     return (
       <>
         <div
           onClick={open}
-          className={cn("inline-flex", className)}
+          className={cn("", className)}
           onMouseEnter={onButtonHover}
         >
           {children}
@@ -185,19 +184,18 @@ export const OverlayWidget = memo(
               {isOpen && (
                 <div
                   onClick={close}
-                  className={cn(
-                    "fixed inset-0 bg-black/80 z-2147483646 transition-opacity duration-250 ease-out backdrop-blur-xs"
-                  )}
+                  className="fixed inset-0 bg-black/80 z-2147483646 transition-opacity duration-250 ease-out backdrop-blur-xs"
                   aria-hidden="true"
                 ></div>
               )}
 
               <div
                 className={cn(
-                  "fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-white z-2147483647 transform transition-transform duration-250 ease-out overflow-y-auto overscroll-contain ",
-                  isOpen ? "translate-x-0" : "translate-x-full",
-                  colorMode === "dark" &&
-                    "bg-[#0A0A0A] border-l-1 border-l-white/10"
+                  "isolate fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-[#0A0A0A] border-l-white/10 border-l-1 z-2147483647 transform transition-transform duration-250 ease-out overflow-y-auto overscroll-contain translate-x-full",
+                  {
+                    "translate-x-0": isOpen,
+                    "bg-white": colorMode === "light",
+                  }
                 )}
                 role="dialog"
                 aria-modal="true"
@@ -209,8 +207,10 @@ export const OverlayWidget = memo(
                       ref={iframeRef}
                       title="Share your feedback"
                       src={showIframe ? platformUrl : undefined}
-                      className="absolute top-0 left-0 w-full h-full border-none"
+                      className="absolute top-0 left-0 w-full h-full border-none bg-transparent"
                       allow="clipboard-write 'src'"
+                      // @ts-expect-error allowtransparency
+                      allowtransparency="true"
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-red-700 text-[16px] p-5">
@@ -228,30 +228,39 @@ export const OverlayWidget = memo(
                     </div>
                   )}
 
-                  <button
-                    onClick={close}
-                    onTouchEnd={close}
-                    className={cn(
-                      "absolute top-0 left-0 text-black/70 cursor-pointer hover:text-black size-8 flex items-center justify-center",
-                      colorMode === "dark" && "text-white/70 hover:text-white"
-                    )}
-                    aria-label="Close feedback board"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="size-4"
-                      fill="none"
-                      viewBox="0 0 25 25"
-                      stroke="currentColor"
+                  <div className="absolute top-0 left-0 z-10 size-8 flex items-center justify-center">
+                    <button
+                      onClick={close}
+                      onTouchEnd={close}
+                      style={{ all: "unset" }}
+                      aria-label="Close feedback board"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
+                      <span
+                        className={cn(
+                          "text-white/70 cursor-pointer hover:text-white size-8 flex items-center justify-center",
+                          {
+                            "text-black/70 hover:text-black":
+                              colorMode === "light",
+                          }
+                        )}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="size-4"
+                          fill="none"
+                          viewBox="0 0 25 25"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2.5}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </>,

@@ -2,6 +2,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import dts from "vite-plugin-dts";
 import preserveDirectives from "rollup-preserve-directives";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
@@ -14,6 +15,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     preserveDirectives(),
+    cssInjectedByJsPlugin(),
     dts({ tsconfigPath: "tsconfig.app.json", insertTypesEntry: true }),
   ],
   build: {
@@ -24,12 +26,11 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["react", "react-dom", "react/jsx-runtime"],
+      external: ["react", "react-dom"],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
-          "react/jsx-runtime": "jsxRuntime",
         },
       },
     },

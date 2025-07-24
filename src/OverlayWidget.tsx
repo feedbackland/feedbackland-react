@@ -22,21 +22,29 @@ const getPlatformUrl = ({
   subdomain,
   url,
   mode = "dark",
+  preview = false,
 }: {
   id: string;
   subdomain: string | null;
   url?: string;
   mode?: "dark" | "light";
+  preview?: boolean;
 }) => {
+  let platformUrl = null;
+
   if (url) {
-    return `${url}?mode=${mode}`;
+    platformUrl = `${url}?mode=${mode}`;
   } else if (isMobileOnly && validateUUID(id)) {
-    return `https://${id}.feedbackland.com?mode=${mode}`;
+    platformUrl = `https://${id}.feedbackland.com?mode=${mode}`;
   } else if (subdomain) {
-    return `https://${subdomain}.feedbackland.com?mode=${mode}`;
+    platformUrl = `https://${subdomain}.feedbackland.com?mode=${mode}`;
   }
 
-  return null;
+  if (platformUrl && preview) {
+    platformUrl += "&preview=true";
+  }
+
+  return platformUrl;
 };
 
 export const OverlayWidget = memo(
@@ -174,7 +182,6 @@ export const OverlayWidget = memo(
               setIframeLoaded(loaded);
             },
             setIsClaimed: (isClaimed: boolean) => {
-              console.log("isClaimed", isClaimed);
               setIsClaimed(isClaimed);
             },
           },

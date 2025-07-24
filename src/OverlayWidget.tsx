@@ -52,12 +52,14 @@ export const OverlayWidget = memo(
     id,
     url,
     mode = "dark",
+    preview = false,
     children,
     className,
   }: {
     id: string;
     url?: string;
     mode?: "dark" | "light";
+    preview?: boolean;
     children: React.ReactNode;
     className?: React.ComponentProps<"div">["className"];
   }) => {
@@ -81,10 +83,11 @@ export const OverlayWidget = memo(
         subdomain,
         url,
         mode,
+        preview,
       });
 
       setPlatformUrl(platformUrl);
-    }, [id, mode, subdomain, url]);
+    }, [id, mode, subdomain, url, preview]);
 
     useEffect(() => {
       if (!platformUrl) return;

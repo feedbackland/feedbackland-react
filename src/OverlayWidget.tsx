@@ -56,6 +56,7 @@ export const OverlayWidget = memo(
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isClaimed, setIsClaimed] = useState(true);
     const [showIframe, setShowIframe] = useState(false);
     const [iframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
@@ -172,6 +173,10 @@ export const OverlayWidget = memo(
             setLoaded: (loaded: boolean) => {
               setIframeLoaded(loaded);
             },
+            setIsClaimed: (isClaimed: boolean) => {
+              console.log("isClaimed", isClaimed);
+              setIsClaimed(isClaimed);
+            },
           },
         });
 
@@ -239,7 +244,7 @@ export const OverlayWidget = memo(
 
               <div
                 className={cn(
-                  "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/10 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
+                  "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
                   {
                     "feedbackland:translate-x-0": isOpen,
                     "feedbackland:bg-white": colorMode === "light",
@@ -283,39 +288,41 @@ export const OverlayWidget = memo(
                     </div>
                   )}
 
-                  <div className="feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-8">
-                    <button
-                      onClick={close}
-                      onTouchEnd={close}
-                      style={{ all: "unset" }}
-                      aria-label="Close feedback board"
-                    >
-                      <span
-                        className={cn(
-                          "feedbackland:text-white/70 feedbackland:cursor-pointer feedbackland:hover:text-white feedbackland:size-8 feedbackland:flex feedbackland:items-center feedbackland:justify-center",
-                          {
-                            "feedbackland:text-black/70 feedbackland:hover:text-black":
-                              colorMode === "light",
-                          }
-                        )}
+                  {isClaimed && (
+                    <div className="feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-8">
+                      <button
+                        onClick={close}
+                        onTouchEnd={close}
+                        style={{ all: "unset" }}
+                        aria-label="Close feedback board"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="feedbackland:size-4"
-                          fill="none"
-                          viewBox="0 0 25 25"
-                          stroke="currentColor"
+                        <span
+                          className={cn(
+                            "feedbackland:text-white/70 feedbackland:cursor-pointer feedbackland:hover:text-white feedbackland:size-8 feedbackland:flex feedbackland:items-center feedbackland:justify-center",
+                            {
+                              "feedbackland:text-black/70 feedbackland:hover:text-black":
+                                colorMode === "light",
+                            }
+                          )}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2.5}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </span>
-                    </button>
-                  </div>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="feedbackland:size-4"
+                            fill="none"
+                            viewBox="0 0 25 25"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2.5}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </>,

@@ -13,9 +13,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
     preserveDirectives(),
-    cssInjectedByJsPlugin(),
+    tailwindcss(),
+    cssInjectedByJsPlugin({ topExecutionPriority: false }),
     dts({ tsconfigPath: "tsconfig.app.json", insertTypesEntry: true }),
   ],
   build: {

@@ -22,23 +22,21 @@ const getPlatformUrl = ({
   subdomain,
   url,
   mode = "dark",
-  isMobile,
 }: {
   id: string;
   subdomain: string | null;
   url?: string;
   mode?: "dark" | "light";
-  isMobile: boolean;
 }) => {
   if (url) {
     return `${url}?mode=${mode}`;
-  } else if (isMobile && validateUUID(id)) {
+  } else if (isMobileOnly && validateUUID(id)) {
     return `https://${id}.feedbackland.com?mode=${mode}`;
   } else if (subdomain) {
     return `https://${subdomain}.feedbackland.com?mode=${mode}`;
   }
 
-  return undefined;
+  return null;
 };
 
 export const OverlayWidget = memo(
@@ -59,12 +57,66 @@ export const OverlayWidget = memo(
     const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [showIframe, setShowIframe] = useState(false);
+    const [iframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
     const [colorMode, setColorMode] = useState(mode);
+    const [platformUrl, setPlatformUrl] = useState<string | null>(null);
 
     useEffect(() => {
       setIsMounted(true);
     }, []);
+
+    useEffect(() => {
+      const platformUrl = getPlatformUrl({
+        id,
+        subdomain,
+        url,
+        mode,
+      });
+
+      setPlatformUrl(platformUrl);
+    }, [id, mode, subdomain, url]);
+
+    useEffect(() => {
+      if (!platformUrl) return;
+
+      const origin = new URL(platformUrl).origin;
+      const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
+      const existingLink = document.head.querySelector(selector);
+
+      if (existingLink) return;
+
+      // Add DNS prefetch
+      const dnsPrefetch = document.createElement("link");
+      dnsPrefetch.rel = "dns-prefetch";
+      dnsPrefetch.href = origin;
+      document.head.appendChild(dnsPrefetch);
+
+      return () => {
+        document.head.removeChild(dnsPrefetch);
+      };
+    }, [platformUrl]);
+
+    useEffect(() => {
+      if (!platformUrl) return;
+
+      const origin = new URL(platformUrl).origin;
+      const selector = `link[rel="preconnect"][href="${origin}"]`;
+      const existingLink = document.head.querySelector(selector);
+
+      if (existingLink) return;
+
+      // Add preconnect
+      const preconnect = document.createElement("link");
+      preconnect.rel = "preconnect";
+      preconnect.href = origin;
+      preconnect.crossOrigin = "anonymous";
+      document.head.appendChild(preconnect);
+
+      return () => {
+        document.head.removeChild(preconnect);
+      };
+    }, [platformUrl]);
 
     useEffect(() => {
       if (!id || url || subdomain || !showIframe || !validateUUID(id)) return;
@@ -94,6 +146,8 @@ export const OverlayWidget = memo(
     }, [id, url, showIframe, subdomain]);
 
     useEffect(() => {
+      if (!isOpen) return;
+
       const originalBodyOverflow = document?.body?.style?.overflow || "";
       document.body.style.overflow = isOpen ? "hidden" : originalBodyOverflow;
 
@@ -115,6 +169,9 @@ export const OverlayWidget = memo(
             setColorMode: (colorMode: "light" | "dark") => {
               setColorMode(colorMode);
             },
+            setLoaded: (loaded: boolean) => {
+              setIframeLoaded(loaded);
+            },
           },
         });
 
@@ -135,6 +192,7 @@ export const OverlayWidget = memo(
 
       setTimeout(() => {
         setShowIframe(false);
+        setIframeLoaded(false);
         setColorMode(mode);
       }, 250);
     };
@@ -143,17 +201,9 @@ export const OverlayWidget = memo(
       setShowIframe(true);
     };
 
-    const platformUrl = getPlatformUrl({
-      id,
-      subdomain,
-      url,
-      mode,
-      isMobile: isMobileOnly,
-    });
-
     const isValidID = validateUUID(id);
 
-    if (isMobileOnly && isValidID) {
+    if (isMobileOnly && isValidID && platformUrl) {
       return (
         <a
           href={platformUrl}
@@ -164,8 +214,6 @@ export const OverlayWidget = memo(
         </a>
       );
     }
-
-    console.log("platformUrl", platformUrl);
 
     return (
       <>
@@ -184,7 +232,7 @@ export const OverlayWidget = memo(
               {isOpen && (
                 <div
                   onClick={close}
-                  className="fixed inset-0 bg-black/80 z-2147483646 transition-opacity duration-250 ease-out backdrop-blur-xs"
+                  className="fixed inset-0 transition-opacity ease-out bg-black/80 z-2147483646 duration-250 backdrop-blur-xs"
                   aria-hidden="true"
                 ></div>
               )}
@@ -202,19 +250,26 @@ export const OverlayWidget = memo(
                 aria-labelledby="Feedback board"
               >
                 <div className="relative w-full h-full">
-                  {isValidID ? (
+                  {isValidID && (
                     <iframe
                       ref={iframeRef}
                       title="Share your feedback"
-                      src={showIframe ? platformUrl : undefined}
-                      className="absolute top-0 left-0 w-full h-full border-none bg-transparent"
+                      src={showIframe && platformUrl ? platformUrl : undefined}
+                      className={cn(
+                        "absolute top-0 left-0 w-full h-full border-none bg-transparent",
+                        {
+                          "opacity-0": !iframeLoaded,
+                        }
+                      )}
                       allow="clipboard-write 'src'"
                       // @ts-expect-error allowtransparency
                       allowtransparency="true"
                     />
-                  ) : (
+                  )}
+
+                  {!isValidID && (
                     <div className="w-full h-full flex flex-col items-center justify-center text-red-700 text-[16px] p-5">
-                      <div className=" text-center mb-2">
+                      <div className="mb-2 text-center ">
                         The ID is missing or incorrect. Please use a valid UUID
                         v4 as ID.
                       </div>
@@ -228,7 +283,7 @@ export const OverlayWidget = memo(
                     </div>
                   )}
 
-                  <div className="absolute top-0 left-0 z-10 size-8 flex items-center justify-center">
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center size-8">
                     <button
                       onClick={close}
                       onTouchEnd={close}

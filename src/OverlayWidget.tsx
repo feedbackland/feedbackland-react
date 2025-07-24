@@ -232,33 +232,33 @@ export const OverlayWidget = memo(
               {isOpen && (
                 <div
                   onClick={close}
-                  className="fixed inset-0 transition-opacity ease-out bg-black/80 z-2147483646 duration-250 backdrop-blur-xs"
+                  className="feedbackland:fixed feedbackland:inset-0 feedbackland:transition-opacity feedbackland:ease-out feedbackland:bg-black/80 feedbackland:z-2147483646 feedbackland:duration-250 feedbackland:backdrop-blur-xs"
                   aria-hidden="true"
                 ></div>
               )}
 
               <div
                 className={cn(
-                  "isolate fixed top-0 bottom-0 right-0 w-screen sm:w-[580px] xl:w-[680px] 2xl:w-[700px] bg-[#0A0A0A] border-l-white/10 border-l-1 z-2147483647 transform transition-transform duration-250 ease-out overflow-y-auto overscroll-contain translate-x-full",
+                  "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/10 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
                   {
-                    "translate-x-0": isOpen,
-                    "bg-white": colorMode === "light",
+                    "feedbackland:translate-x-0": isOpen,
+                    "feedbackland:bg-white": colorMode === "light",
                   }
                 )}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="Feedback board"
               >
-                <div className="relative w-full h-full">
+                <div className="feedbackland:relative feedbackland:w-full feedbackland:h-full">
                   {isValidID && (
                     <iframe
                       ref={iframeRef}
                       title="Share your feedback"
                       src={showIframe && platformUrl ? platformUrl : undefined}
                       className={cn(
-                        "absolute top-0 left-0 w-full h-full border-none bg-transparent",
+                        "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
                         {
-                          "opacity-0": !iframeLoaded,
+                          "feedbackland:opacity-0": !iframeLoaded,
                         }
                       )}
                       allow="clipboard-write 'src'"
@@ -268,13 +268,13 @@ export const OverlayWidget = memo(
                   )}
 
                   {!isValidID && (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-red-700 text-[16px] p-5">
-                      <div className="mb-2 text-center ">
+                    <div className="feedbackland:w-full feedbackland:h-full feedbackland:flex feedbackland:flex-col feedbackland:items-center feedbackland:justify-center feedbackland:text-red-700 feedbackland:text-[16px] feedbackland:p-5">
+                      <div className="feedbackland:mb-2 feedbackland:text-center ">
                         The ID is missing or incorrect. Please use a valid UUID
                         v4 as ID.
                       </div>
                       <a
-                        className="text-center underline"
+                        className="feedbackland:text-center feedbackland:underline"
                         href="https://www.uuidtools.com/v4"
                         target="_blank"
                       >
@@ -283,7 +283,7 @@ export const OverlayWidget = memo(
                     </div>
                   )}
 
-                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center size-8">
+                  <div className="feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-8">
                     <button
                       onClick={close}
                       onTouchEnd={close}
@@ -292,16 +292,16 @@ export const OverlayWidget = memo(
                     >
                       <span
                         className={cn(
-                          "text-white/70 cursor-pointer hover:text-white size-8 flex items-center justify-center",
+                          "feedbackland:text-white/70 feedbackland:cursor-pointer feedbackland:hover:text-white feedbackland:size-8 feedbackland:flex feedbackland:items-center feedbackland:justify-center",
                           {
-                            "text-black/70 hover:text-black":
+                            "feedbackland:text-black/70 feedbackland:hover:text-black":
                               colorMode === "light",
                           }
                         )}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="size-4"
+                          className="feedbackland:size-4"
                           fill="none"
                           viewBox="0 0 25 25"
                           stroke="currentColor"

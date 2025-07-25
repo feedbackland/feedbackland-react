@@ -1,6 +1,6 @@
 {
   "name": "feedbackland-react",
-  "version": "1.0.11",
+  "version": "1.0.18",
   "type": "module",
   "module": "./dist/feedbackland-react.js",
   "exports": {

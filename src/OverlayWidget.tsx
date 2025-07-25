@@ -8,6 +8,7 @@ import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
 import { version as uuidVersion } from "uuid";
 import { validate as uuidValidate } from "uuid";
+import { useScrollLock } from "./hooks/use-scroll-lock";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -72,6 +73,8 @@ export const OverlayWidget = memo(
     const [subdomain, setSubdomain] = useState<string | null>(null);
     const [colorMode, setColorMode] = useState(mode);
     const [platformUrl, setPlatformUrl] = useState<string | null>(null);
+
+    useScrollLock(isOpen);
 
     useEffect(() => {
       setIsMounted(true);
@@ -156,17 +159,6 @@ export const OverlayWidget = memo(
 
       fetchSubdomain();
     }, [id, url, showIframe, subdomain]);
-
-    useEffect(() => {
-      if (!isOpen) return;
-
-      const originalBodyOverflow = document?.body?.style?.overflow || "";
-      document.body.style.overflow = isOpen ? "hidden" : originalBodyOverflow;
-
-      return () => {
-        document.body.style.overflow = originalBodyOverflow;
-      };
-    }, [isOpen]);
 
     useEffect(() => {
       if (!!(url || subdomain) && showIframe && iframeRef.current) {

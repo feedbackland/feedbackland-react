@@ -31,7 +31,7 @@ const getPlatformUrl = ({
   mode?: "dark" | "light";
   preview?: boolean;
 }) => {
-  let platformUrl = null;
+  let platformUrl: string | null = null;
 
   if (url) {
     platformUrl = `${url}?mode=${mode}`;

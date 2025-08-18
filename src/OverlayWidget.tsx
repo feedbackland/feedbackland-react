@@ -2,36 +2,23 @@
 
 import React, { memo, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { twMerge } from "tailwind-merge";
-import { clsx, type ClassValue } from "clsx";
 import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
-import { version as uuidVersion } from "uuid";
-import { validate as uuidValidate } from "uuid";
 import { useScrollLock } from "./hooks/use-scroll-lock";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-function validateUUID(uuid: string) {
-  return uuidValidate(uuid) && uuidVersion(uuid) === 4;
-}
+import { cn, validateUUID } from "./utils";
 
 const getPlatformUrl = ({
   id,
   subdomain,
   url,
   mode = "dark",
-  preview = false,
 }: {
   id: string;
   subdomain: string | null;
   url?: string;
   mode?: "dark" | "light";
-  preview?: boolean;
 }) => {
-  let platformUrl: string | null = null;
+  let platformUrl: string | undefined = undefined;
 
   if (url) {
     platformUrl = `${url}?mode=${mode}`;
@@ -39,10 +26,6 @@ const getPlatformUrl = ({
     platformUrl = `https://${id}.feedbackland.com?mode=${mode}`;
   } else if (subdomain) {
     platformUrl = `https://${subdomain}.feedbackland.com?mode=${mode}`;
-  }
-
-  if (platformUrl && preview) {
-    platformUrl += "&preview=true";
   }
 
   return platformUrl;
@@ -53,14 +36,12 @@ export const OverlayWidget = memo(
     id,
     url,
     mode = "dark",
-    preview = false,
     children,
     className,
   }: {
     id: string;
     url?: string;
     mode?: "dark" | "light";
-    preview?: boolean;
     children: React.ReactNode;
     className?: React.ComponentProps<"div">["className"];
   }) => {
@@ -68,11 +49,13 @@ export const OverlayWidget = memo(
     const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [isClaimed, setIsClaimed] = useState(true);
-    const [showIframe, setShowIframe] = useState(false);
-    const [iframeLoaded, setIframeLoaded] = useState(false);
+    // const [showIframe, setShowIframe] = useState(true);
+    // const [iframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
     const [colorMode, setColorMode] = useState(mode);
-    const [platformUrl, setPlatformUrl] = useState<string | null>(null);
+    const [platformUrl, setPlatformUrl] = useState<string | undefined>(
+      undefined
+    );
 
     useScrollLock(isOpen);
 
@@ -86,55 +69,61 @@ export const OverlayWidget = memo(
         subdomain,
         url,
         mode,
-        preview,
       });
 
       setPlatformUrl(platformUrl);
-    }, [id, mode, subdomain, url, preview]);
+    }, [id, mode, subdomain, url]);
+
+    // useEffect(() => {
+    //   if (!platformUrl) return;
+
+    //   const origin = new URL(platformUrl).origin;
+    //   const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
+    //   const existingLink = document.head.querySelector(selector);
+
+    //   if (existingLink) return;
+
+    //   // Add DNS prefetch
+    //   const dnsPrefetch = document.createElement("link");
+    //   dnsPrefetch.rel = "dns-prefetch";
+    //   dnsPrefetch.href = origin;
+    //   document.head.appendChild(dnsPrefetch);
+
+    //   return () => {
+    //     document.head.removeChild(dnsPrefetch);
+    //   };
+    // }, [platformUrl]);
+
+    // useEffect(() => {
+    //   if (!platformUrl) return;
+
+    //   const origin = new URL(platformUrl).origin;
+    //   const selector = `link[rel="preconnect"][href="${origin}"]`;
+    //   const existingLink = document.head.querySelector(selector);
+
+    //   if (existingLink) return;
+
+    //   // Add preconnect
+    //   const preconnect = document.createElement("link");
+    //   preconnect.rel = "preconnect";
+    //   preconnect.href = origin;
+    //   preconnect.crossOrigin = "anonymous";
+    //   document.head.appendChild(preconnect);
+
+    //   return () => {
+    //     document.head.removeChild(preconnect);
+    //   };
+    // }, [platformUrl]);
 
     useEffect(() => {
-      if (!platformUrl) return;
-
-      const origin = new URL(platformUrl).origin;
-      const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
-      const existingLink = document.head.querySelector(selector);
-
-      if (existingLink) return;
-
-      // Add DNS prefetch
-      const dnsPrefetch = document.createElement("link");
-      dnsPrefetch.rel = "dns-prefetch";
-      dnsPrefetch.href = origin;
-      document.head.appendChild(dnsPrefetch);
-
-      return () => {
-        document.head.removeChild(dnsPrefetch);
-      };
-    }, [platformUrl]);
-
-    useEffect(() => {
-      if (!platformUrl) return;
-
-      const origin = new URL(platformUrl).origin;
-      const selector = `link[rel="preconnect"][href="${origin}"]`;
-      const existingLink = document.head.querySelector(selector);
-
-      if (existingLink) return;
-
-      // Add preconnect
-      const preconnect = document.createElement("link");
-      preconnect.rel = "preconnect";
-      preconnect.href = origin;
-      preconnect.crossOrigin = "anonymous";
-      document.head.appendChild(preconnect);
-
-      return () => {
-        document.head.removeChild(preconnect);
-      };
-    }, [platformUrl]);
-
-    useEffect(() => {
-      if (!id || url || subdomain || !showIframe || !validateUUID(id)) return;
+      if (
+        !id ||
+        !validateUUID(id) ||
+        url ||
+        subdomain
+        // || !showIframe
+      )
+        return;
 
       const fetchSubdomain = async () => {
         try {
@@ -158,10 +147,10 @@ export const OverlayWidget = memo(
       };
 
       fetchSubdomain();
-    }, [id, url, showIframe, subdomain]);
+    }, [id, url, /* showIframe, */ subdomain]);
 
     useEffect(() => {
-      if (!!(url || subdomain) && showIframe && iframeRef.current) {
+      if (!!(url || subdomain) /* && showIframe */ && iframeRef.current) {
         const messenger = new WindowMessenger({
           remoteWindow: iframeRef.current.contentWindow!,
           allowedOrigins: ["*"],
@@ -173,8 +162,8 @@ export const OverlayWidget = memo(
             setColorMode: (colorMode: "light" | "dark") => {
               setColorMode(colorMode);
             },
-            setLoaded: (loaded: boolean) => {
-              setIframeLoaded(loaded);
+            setLoaded: (/* loaded: boolean */) => {
+              // setIframeLoaded(loaded);
             },
             setIsClaimed: (isClaimed: boolean) => {
               setIsClaimed(isClaimed);
@@ -187,26 +176,30 @@ export const OverlayWidget = memo(
           messenger.destroy();
         };
       }
-    }, [subdomain, url, showIframe]);
+    }, [subdomain, url /* , showIframe */]);
 
     const open = () => {
-      setShowIframe(true);
-      setTimeout(() => setIsOpen(true), 250);
+      // setShowIframe(true);
+      // setTimeout(() => setIsOpen(true), 250);
+
+      setIsOpen(true);
     };
 
     const close = () => {
       setIsOpen(false);
 
-      setTimeout(() => {
-        setShowIframe(false);
-        setIframeLoaded(false);
-        setColorMode(mode);
-      }, 250);
+      // setTimeout(() => {
+      //   setShowIframe(false);
+      //   setIframeLoaded(false);
+      //   setColorMode(mode);
+      // }, 250);
+
+      setColorMode(mode);
     };
 
-    const onButtonHover = () => {
-      setShowIframe(true);
-    };
+    // const onButtonHover = () => {
+    //   // setShowIframe(true);
+    // };
 
     const isValidID = validateUUID(id);
 
@@ -227,7 +220,7 @@ export const OverlayWidget = memo(
         <div
           onClick={open}
           className={cn("", className)}
-          onMouseEnter={onButtonHover}
+          // onMouseEnter={onButtonHover}
         >
           {children}
         </div>
@@ -261,12 +254,13 @@ export const OverlayWidget = memo(
                     <iframe
                       ref={iframeRef}
                       title="Share your feedback"
-                      src={showIframe && platformUrl ? platformUrl : undefined}
+                      src={platformUrl}
+                      // src={showIframe && platformUrl ? platformUrl : undefined}
                       className={cn(
-                        "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
-                        {
-                          "feedbackland:opacity-0": !iframeLoaded,
-                        }
+                        "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent"
+                        // {
+                        //   "feedbackland:opacity-0": !iframeLoaded,
+                        // }
                       )}
                       allow="clipboard-write 'src'"
                       // @ts-expect-error allowtransparency

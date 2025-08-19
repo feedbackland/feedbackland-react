@@ -50,7 +50,7 @@ export const OverlayWidget = memo(
     const [isOpen, setIsOpen] = useState(false);
     const [isClaimed, setIsClaimed] = useState(true);
     // const [showIframe, setShowIframe] = useState(true);
-    // const [iframeLoaded, setIframeLoaded] = useState(false);
+    const [iframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
     const [colorMode, setColorMode] = useState(mode);
     const [platformUrl, setPlatformUrl] = useState<string | undefined>(
@@ -162,8 +162,8 @@ export const OverlayWidget = memo(
             setColorMode: (colorMode: "light" | "dark") => {
               setColorMode(colorMode);
             },
-            setLoaded: (/* loaded: boolean */) => {
-              // setIframeLoaded(loaded);
+            setLoaded: (loaded: boolean) => {
+              setIframeLoaded(loaded);
             },
             setIsClaimed: (isClaimed: boolean) => {
               setIsClaimed(isClaimed);
@@ -257,10 +257,10 @@ export const OverlayWidget = memo(
                       src={platformUrl}
                       // src={showIframe && platformUrl ? platformUrl : undefined}
                       className={cn(
-                        "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent"
-                        // {
-                        //   "feedbackland:opacity-0": !iframeLoaded,
-                        // }
+                        "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
+                        {
+                          "feedbackland:opacity-0": !iframeLoaded,
+                        }
                       )}
                       allow="clipboard-write 'src'"
                       // @ts-expect-error allowtransparency

@@ -4,8 +4,9 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
-import { useScrollLock } from "./hooks/use-scroll-lock";
 import { cn, validateUUID } from "./utils";
+import { usePreventScroll } from "react-aria";
+import FocusLock from "react-focus-lock";
 
 const getPlatformUrl = ({
   platformId,
@@ -46,9 +47,14 @@ export const OverlayWidget = memo(
     className?: React.ComponentProps<"div">["className"];
   }) => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
+    // const modalRef = useRef<HTMLIFrameElement | null>(null);
+    // const { dialogProps } = useDialog(
+    //   { "aria-labelledby": "Feedback board" },
+    //   modalRef
+    // );
     const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    const [isClaimed, setIsClaimed] = useState(true);
+    // const [isClaimed, setIsClaimed] = useState(true);
     // const [showIframe, setShowIframe] = useState(true);
     const [iframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
@@ -57,7 +63,7 @@ export const OverlayWidget = memo(
       undefined
     );
 
-    useScrollLock(isOpen);
+    usePreventScroll({ isDisabled: !isOpen });
 
     useEffect(() => {
       setIsMounted(true);
@@ -165,8 +171,8 @@ export const OverlayWidget = memo(
             setLoaded: (loaded: boolean) => {
               setIframeLoaded(loaded);
             },
-            setIsClaimed: (isClaimed: boolean) => {
-              setIsClaimed(isClaimed);
+            setIsClaimed: (/* isClaimed: boolean */) => {
+              // setIsClaimed(isClaimed);
             },
           },
         });
@@ -237,90 +243,104 @@ export const OverlayWidget = memo(
                 ></div>
               )}
 
-              <div
-                className={cn(
-                  "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
-                  {
-                    "feedbackland:translate-x-0": isOpen,
-                    "feedbackland:bg-white": colorMode === "light",
-                  }
-                )}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="Feedback board"
-              >
-                <div className="feedbackland:relative feedbackland:w-full feedbackland:h-full">
-                  {isValidID && (
-                    <iframe
-                      ref={iframeRef}
-                      title="Share your feedback"
-                      src={platformUrl}
-                      // src={showIframe && platformUrl ? platformUrl : undefined}
-                      className={cn(
-                        "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
-                        {
-                          "feedbackland:opacity-0": !iframeLoaded,
-                        }
-                      )}
-                      allow="clipboard-write 'src'"
-                      // @ts-expect-error allowtransparency
-                      allowtransparency="true"
-                    />
+              <FocusLock disabled={!isOpen}>
+                <div
+                  className={cn(
+                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
+                    {
+                      "feedbackland:translate-x-0": isOpen,
+                      "feedbackland:bg-white": colorMode === "light",
+                    }
                   )}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="Feedback board"
+                >
+                  <div className="feedbackland:relative feedbackland:w-full feedbackland:h-full">
+                    {isValidID && (
+                      <iframe
+                        ref={iframeRef}
+                        title="Share your feedback"
+                        src={platformUrl}
+                        // src={showIframe && platformUrl ? platformUrl : undefined}
+                        className={cn(
+                          "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
+                          {
+                            "feedbackland:opacity-0": !iframeLoaded,
+                          }
+                        )}
+                        allow="clipboard-write 'src'"
+                        // @ts-expect-error allowtransparency
+                        allowtransparency="true"
+                      />
+                    )}
 
-                  {!isValidID && (
-                    <div className="feedbackland:w-full feedbackland:h-full feedbackland:flex feedbackland:flex-col feedbackland:items-center feedbackland:justify-center feedbackland:text-red-700 feedbackland:text-[16px] feedbackland:p-5">
-                      <div className="feedbackland:mb-2 feedbackland:text-center ">
-                        The ID is missing or incorrect. Please use a valid UUID
-                        v4 as ID.
-                      </div>
-                      <a
-                        className="feedbackland:text-center feedbackland:underline"
-                        href="https://www.uuidtools.com/v4"
-                        target="_blank"
-                      >
-                        Generate your UUID v4
-                      </a>
-                    </div>
-                  )}
-
-                  {isClaimed && (
-                    <div className="feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-8">
-                      <button
-                        onClick={close}
-                        onTouchEnd={close}
-                        style={{ all: "unset" }}
-                        aria-label="Close feedback board"
-                      >
-                        <span
-                          className={cn(
-                            "feedbackland:text-white/70 feedbackland:cursor-pointer feedbackland:hover:text-white feedbackland:size-8 feedbackland:flex feedbackland:items-center feedbackland:justify-center",
-                            {
-                              "feedbackland:text-black/70 feedbackland:hover:text-black":
-                                colorMode === "light",
-                            }
-                          )}
+                    {!isValidID && (
+                      <div className="feedbackland:w-full feedbackland:h-full feedbackland:flex feedbackland:flex-col feedbackland:items-center feedbackland:justify-center feedbackland:text-red-700 feedbackland:text-[16px] feedbackland:p-5">
+                        <div className="feedbackland:mb-2 feedbackland:text-center ">
+                          The ID is missing or incorrect. Please use a valid
+                          UUID v4 as ID.
+                        </div>
+                        <a
+                          className="feedbackland:text-center feedbackland:underline"
+                          href="https://www.uuidtools.com/v4"
+                          target="_blank"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="feedbackland:size-4"
-                            fill="none"
-                            viewBox="0 0 25 25"
-                            stroke="currentColor"
+                          Generate your UUID v4
+                        </a>
+                      </div>
+                    )}
+
+                    <button
+                      aria-label="Close"
+                      type="button"
+                      className="feedbackland:absolute feedbackland:top-1 feedbackland:left-1 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-6 feedbackland:text-white! feedbackland:font-sans! feedbackland:text-[16px]! feedbackland:font-bold! feedbackland:border-none! feedbackland:bg-transparent!"
+                      onClick={close}
+                      onTouchEnd={close}
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    {/* {isClaimed && (
+                      <div className="feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-8">
+                        <button
+                          onClick={close}
+                          onTouchEnd={close}
+                          // style={{ all: "unset" }}
+                          aria-label="Close feedback board"
+                          className="feedbackland:text-white! feedbackland:font-sans! feedbackland:text-[14px]! feedbackland:font-bold! feedbackland:border-none! feedbackland:bg-transparent!"
+                        >
+                          &#10006;
+                          <span
+                            className={cn(
+                              "feedbackland:text-white/70 feedbackland:cursor-pointer feedbackland:hover:text-white feedbackland:size-8 feedbackland:flex feedbackland:items-center feedbackland:justify-center",
+                              {
+                                "feedbackland:text-black/70 feedbackland:hover:text-black":
+                                  colorMode === "light",
+                              }
+                            )}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2.5}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </span>
-                      </button>
-                    </div>
-                  )}
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="feedbackland:size-4"
+                              fill="none"
+                              viewBox="0 0 25 25"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                    )} */}
+                  </div>
                 </div>
-              </div>
+              </FocusLock>
             </>,
             document.body
           )}

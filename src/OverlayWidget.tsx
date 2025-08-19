@@ -8,12 +8,12 @@ import { useScrollLock } from "./hooks/use-scroll-lock";
 import { cn, validateUUID } from "./utils";
 
 const getPlatformUrl = ({
-  id,
+  platformId,
   subdomain,
   url,
   mode = "dark",
 }: {
-  id: string;
+  platformId: string;
   subdomain: string | null;
   url?: string;
   mode?: "dark" | "light";
@@ -22,8 +22,8 @@ const getPlatformUrl = ({
 
   if (url) {
     platformUrl = `${url}?mode=${mode}`;
-  } else if (isMobileOnly && validateUUID(id)) {
-    platformUrl = `https://${id}.feedbackland.com?mode=${mode}`;
+  } else if (isMobileOnly && validateUUID(platformId)) {
+    platformUrl = `https://${platformId}.feedbackland.com?mode=${mode}`;
   } else if (subdomain) {
     platformUrl = `https://${subdomain}.feedbackland.com?mode=${mode}`;
   }
@@ -33,13 +33,13 @@ const getPlatformUrl = ({
 
 export const OverlayWidget = memo(
   ({
-    id,
+    platformId,
     url,
     mode = "dark",
     children,
     className,
   }: {
-    id: string;
+    platformId: string;
     url?: string;
     mode?: "dark" | "light";
     children: React.ReactNode;
@@ -65,14 +65,14 @@ export const OverlayWidget = memo(
 
     useEffect(() => {
       const platformUrl = getPlatformUrl({
-        id,
+        platformId,
         subdomain,
         url,
         mode,
       });
 
       setPlatformUrl(platformUrl);
-    }, [id, mode, subdomain, url]);
+    }, [platformId, mode, subdomain, url]);
 
     // useEffect(() => {
     //   if (!platformUrl) return;
@@ -117,8 +117,8 @@ export const OverlayWidget = memo(
 
     useEffect(() => {
       if (
-        !id ||
-        !validateUUID(id) ||
+        !platformId ||
+        !validateUUID(platformId) ||
         url ||
         subdomain
         // || !showIframe
@@ -134,7 +134,7 @@ export const OverlayWidget = memo(
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ orgId: id }),
+              body: JSON.stringify({ orgId: platformId }),
             }
           );
 
@@ -147,7 +147,7 @@ export const OverlayWidget = memo(
       };
 
       fetchSubdomain();
-    }, [id, url, /* showIframe, */ subdomain]);
+    }, [platformId, url, /* showIframe, */ subdomain]);
 
     useEffect(() => {
       if (!!(url || subdomain) /* && showIframe */ && iframeRef.current) {
@@ -201,7 +201,7 @@ export const OverlayWidget = memo(
     //   // setShowIframe(true);
     // };
 
-    const isValidID = validateUUID(id);
+    const isValidID = validateUUID(platformId);
 
     if (isMobileOnly && isValidID && platformUrl) {
       return (

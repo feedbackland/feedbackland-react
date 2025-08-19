@@ -5,8 +5,7 @@ import { createPortal } from "react-dom";
 import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
 import { cn, validateUUID } from "./utils";
-import { usePreventScroll } from "react-aria";
-import FocusLock from "react-focus-lock";
+import { FocusOn } from "react-focus-on";
 
 const getPlatformUrl = ({
   platformId,
@@ -63,7 +62,7 @@ export const OverlayWidget = memo(
       undefined
     );
 
-    usePreventScroll({ isDisabled: !isOpen });
+    // usePreventScroll({ isDisabled: !isOpen });
 
     useEffect(() => {
       setIsMounted(true);
@@ -237,13 +236,18 @@ export const OverlayWidget = memo(
             <>
               {isOpen && (
                 <div
-                  onClick={close}
+                  // onClick={close}
                   className="feedbackland:fixed feedbackland:inset-0 feedbackland:transition-opacity feedbackland:ease-out feedbackland:bg-black/80 feedbackland:z-2147483646 feedbackland:duration-250 feedbackland:backdrop-blur-xs"
                   aria-hidden="true"
                 ></div>
               )}
 
-              <FocusLock disabled={!isOpen}>
+              <FocusOn
+                enabled={isOpen}
+                onClickOutside={close}
+                onEscapeKey={close}
+              >
+                {/* <FocusLock disabled={!isOpen}> */}
                 <div
                   className={cn(
                     "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
@@ -340,7 +344,7 @@ export const OverlayWidget = memo(
                     )} */}
                   </div>
                 </div>
-              </FocusLock>
+              </FocusOn>
             </>,
             document.body
           )}

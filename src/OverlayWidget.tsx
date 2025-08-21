@@ -237,7 +237,7 @@ export const OverlayWidget = memo(
               {isOpen && (
                 <div
                   // onClick={close}
-                  className="feedbackland:fixed feedbackland:inset-0 feedbackland:transition-opacity feedbackland:ease-out feedbackland:bg-black/80 feedbackland:z-2147483646 feedbackland:duration-250 feedbackland:backdrop-blur-xs"
+                  className="feedbackland:fixed feedbackland:inset-0 feedbackland:transition-opacity feedbackland:ease-out feedbackland:bg-black/70 feedbackland:z-2147483646 feedbackland:duration-250 feedbackland:backdrop-blur-xs"
                   aria-hidden="true"
                 ></div>
               )}
@@ -250,7 +250,7 @@ export const OverlayWidget = memo(
                 {/* <FocusLock disabled={!isOpen}> */}
                 <div
                   className={cn(
-                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[680px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
+                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[620px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
                     {
                       "feedbackland:translate-x-0": isOpen,
                       "feedbackland:bg-white": colorMode === "light",
@@ -267,15 +267,16 @@ export const OverlayWidget = memo(
                         title="Share your feedback"
                         src={platformUrl}
                         // src={showIframe && platformUrl ? platformUrl : undefined}
+                        loading="lazy"
+                        allow="clipboard-write 'src'"
+                        // @ts-expect-error allowtransparency
+                        allowtransparency="true"
                         className={cn(
                           "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
                           {
                             "feedbackland:opacity-0": !iframeLoaded,
                           }
                         )}
-                        allow="clipboard-write 'src'"
-                        // @ts-expect-error allowtransparency
-                        allowtransparency="true"
                       />
                     )}
 
@@ -298,7 +299,13 @@ export const OverlayWidget = memo(
                     <button
                       aria-label="Close"
                       type="button"
-                      className="feedbackland:absolute feedbackland:top-1 feedbackland:left-1 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-6 feedbackland:text-white! feedbackland:font-sans! feedbackland:text-[16px]! feedbackland:font-bold! feedbackland:border-none! feedbackland:bg-transparent!"
+                      className={cn(
+                        "feedbackland:absolute feedbackland:top-0.5 feedbackland:left-0.5 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-5 feedbackland:text-white/70 feedbackland:hover:text-white feedbackland:font-sans feedbackland:text-[20px] feedbackland:font-normal feedbackland:border-none feedbackland:bg-transparent feedbackland:cursor-pointer",
+                        {
+                          "feedbackland:text-black/70 feedbackland:hover:text-black":
+                            colorMode === "light",
+                        }
+                      )}
                       onClick={close}
                       onTouchEnd={close}
                     >

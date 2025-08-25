@@ -46,23 +46,14 @@ export const OverlayWidget = memo(
     className?: React.ComponentProps<"div">["className"];
   }) => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
-    // const modalRef = useRef<HTMLIFrameElement | null>(null);
-    // const { dialogProps } = useDialog(
-    //   { "aria-labelledby": "Feedback board" },
-    //   modalRef
-    // );
     const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    // const [isClaimed, setIsClaimed] = useState(true);
-    // const [showIframe, setShowIframe] = useState(true);
     const [iframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
     const [colorMode, setColorMode] = useState(mode);
     const [platformUrl, setPlatformUrl] = useState<string | undefined>(
       undefined
     );
-
-    // usePreventScroll({ isDisabled: !isOpen });
 
     useEffect(() => {
       setIsMounted(true);
@@ -121,14 +112,7 @@ export const OverlayWidget = memo(
     }, [platformUrl]);
 
     useEffect(() => {
-      if (
-        !platformId ||
-        !validateUUID(platformId) ||
-        url ||
-        subdomain
-        // || !showIframe
-      )
-        return;
+      if (!platformId || !validateUUID(platformId) || url || subdomain) return;
 
       const fetchSubdomain = async () => {
         try {
@@ -152,10 +136,10 @@ export const OverlayWidget = memo(
       };
 
       fetchSubdomain();
-    }, [platformId, url, /* showIframe, */ subdomain]);
+    }, [platformId, url, subdomain]);
 
     useEffect(() => {
-      if (!!(url || subdomain) /* && showIframe */ && iframeRef.current) {
+      if (!!(url || subdomain) && iframeRef.current) {
         const messenger = new WindowMessenger({
           remoteWindow: iframeRef.current.contentWindow!,
           allowedOrigins: ["*"],
@@ -170,9 +154,6 @@ export const OverlayWidget = memo(
             setLoaded: (loaded: boolean) => {
               setIframeLoaded(loaded);
             },
-            setIsClaimed: (/* isClaimed: boolean */) => {
-              // setIsClaimed(isClaimed);
-            },
           },
         });
 
@@ -181,34 +162,20 @@ export const OverlayWidget = memo(
           messenger.destroy();
         };
       }
-    }, [subdomain, url /* , showIframe */]);
+    }, [subdomain, url]);
 
     const open = () => {
-      // setShowIframe(true);
-      // setTimeout(() => setIsOpen(true), 250);
-
       setIsOpen(true);
     };
 
     const close = () => {
       setIsOpen(false);
-
-      // setTimeout(() => {
-      //   setShowIframe(false);
-      //   setIframeLoaded(false);
-      //   setColorMode(mode);
-      // }, 250);
-
       setColorMode(mode);
     };
 
-    // const onButtonHover = () => {
-    //   // setShowIframe(true);
-    // };
+    const isValidPlatformId = validateUUID(platformId);
 
-    const isValidID = validateUUID(platformId);
-
-    if (isMobileOnly && isValidID && platformUrl) {
+    if (isMobileOnly && isValidPlatformId && platformUrl) {
       return (
         <a
           href={platformUrl}
@@ -222,16 +189,11 @@ export const OverlayWidget = memo(
 
     return (
       <>
-        <div
-          onClick={open}
-          className={cn("", className)}
-          // onMouseEnter={onButtonHover}
-        >
+        <div onClick={open} className={cn("", className)}>
           {children}
         </div>
 
         {isMounted &&
-          document &&
           createPortal(
             <>
               {isOpen && (
@@ -248,8 +210,9 @@ export const OverlayWidget = memo(
               >
                 <div
                   className={cn(
-                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[600px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
+                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[600px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full feedbackland:overflow-x-hidden feedbackland:will-change-auto",
                     {
+                      "feedbackland:overflow-hidden": !isOpen,
                       "feedbackland:translate-x-0": isOpen,
                       "feedbackland:bg-white": colorMode === "light",
                     }
@@ -259,16 +222,13 @@ export const OverlayWidget = memo(
                   aria-labelledby="Feedback board"
                 >
                   <div className="feedbackland:relative feedbackland:w-full feedbackland:h-full">
-                    {isValidID && (
+                    {isValidPlatformId && (
                       <iframe
                         ref={iframeRef}
                         title="Share your feedback"
                         src={platformUrl}
-                        // src={showIframe && platformUrl ? platformUrl : undefined}
                         loading="lazy"
                         allow="clipboard-write 'src'"
-                        // @ts-expect-error allowtransparency
-                        allowtransparency="true"
                         className={cn(
                           "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
                           {
@@ -278,7 +238,7 @@ export const OverlayWidget = memo(
                       />
                     )}
 
-                    {!isValidID && (
+                    {!isValidPlatformId && (
                       <div className="feedbackland:w-full feedbackland:h-full feedbackland:flex feedbackland:flex-col feedbackland:items-center feedbackland:justify-center feedbackland:text-red-700 feedbackland:text-[16px] feedbackland:p-5">
                         <div className="feedbackland:mb-2 feedbackland:text-center ">
                           The platformId is missing or incorrect. Please use a

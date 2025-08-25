@@ -79,46 +79,46 @@ export const OverlayWidget = memo(
       setPlatformUrl(platformUrl);
     }, [platformId, mode, subdomain, url]);
 
-    // useEffect(() => {
-    //   if (!platformUrl) return;
+    useEffect(() => {
+      if (!platformUrl) return;
 
-    //   const origin = new URL(platformUrl).origin;
-    //   const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
-    //   const existingLink = document.head.querySelector(selector);
+      const origin = new URL(platformUrl).origin;
+      const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
+      const existingLink = document.head.querySelector(selector);
 
-    //   if (existingLink) return;
+      if (existingLink) return;
 
-    //   // Add DNS prefetch
-    //   const dnsPrefetch = document.createElement("link");
-    //   dnsPrefetch.rel = "dns-prefetch";
-    //   dnsPrefetch.href = origin;
-    //   document.head.appendChild(dnsPrefetch);
+      // Add DNS prefetch
+      const dnsPrefetch = document.createElement("link");
+      dnsPrefetch.rel = "dns-prefetch";
+      dnsPrefetch.href = origin;
+      document.head.appendChild(dnsPrefetch);
 
-    //   return () => {
-    //     document.head.removeChild(dnsPrefetch);
-    //   };
-    // }, [platformUrl]);
+      return () => {
+        document.head.removeChild(dnsPrefetch);
+      };
+    }, [platformUrl]);
 
-    // useEffect(() => {
-    //   if (!platformUrl) return;
+    useEffect(() => {
+      if (!platformUrl) return;
 
-    //   const origin = new URL(platformUrl).origin;
-    //   const selector = `link[rel="preconnect"][href="${origin}"]`;
-    //   const existingLink = document.head.querySelector(selector);
+      const origin = new URL(platformUrl).origin;
+      const selector = `link[rel="preconnect"][href="${origin}"]`;
+      const existingLink = document.head.querySelector(selector);
 
-    //   if (existingLink) return;
+      if (existingLink) return;
 
-    //   // Add preconnect
-    //   const preconnect = document.createElement("link");
-    //   preconnect.rel = "preconnect";
-    //   preconnect.href = origin;
-    //   preconnect.crossOrigin = "anonymous";
-    //   document.head.appendChild(preconnect);
+      // Add preconnect
+      const preconnect = document.createElement("link");
+      preconnect.rel = "preconnect";
+      preconnect.href = origin;
+      preconnect.crossOrigin = "anonymous";
+      document.head.appendChild(preconnect);
 
-    //   return () => {
-    //     document.head.removeChild(preconnect);
-    //   };
-    // }, [platformUrl]);
+      return () => {
+        document.head.removeChild(preconnect);
+      };
+    }, [platformUrl]);
 
     useEffect(() => {
       if (
@@ -236,7 +236,6 @@ export const OverlayWidget = memo(
             <>
               {isOpen && (
                 <div
-                  // onClick={close}
                   className="feedbackland:fixed feedbackland:inset-0 feedbackland:transition-opacity feedbackland:ease-out feedbackland:bg-black/70 feedbackland:z-2147483646 feedbackland:duration-250 feedbackland:backdrop-blur-xs"
                   aria-hidden="true"
                 ></div>
@@ -247,10 +246,9 @@ export const OverlayWidget = memo(
                 onClickOutside={close}
                 onEscapeKey={close}
               >
-                {/* <FocusLock disabled={!isOpen}> */}
                 <div
                   className={cn(
-                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[620px] feedbackland:2xl:w-[700px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
+                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-screen feedbackland:sm:w-[580px] feedbackland:xl:w-[600px] feedbackland:bg-[#0A0A0A] feedbackland:border-l-white/8 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:overflow-y-auto feedbackland:overscroll-contain feedbackland:translate-x-full",
                     {
                       "feedbackland:translate-x-0": isOpen,
                       "feedbackland:bg-white": colorMode === "light",
@@ -283,8 +281,8 @@ export const OverlayWidget = memo(
                     {!isValidID && (
                       <div className="feedbackland:w-full feedbackland:h-full feedbackland:flex feedbackland:flex-col feedbackland:items-center feedbackland:justify-center feedbackland:text-red-700 feedbackland:text-[16px] feedbackland:p-5">
                         <div className="feedbackland:mb-2 feedbackland:text-center ">
-                          The ID is missing or incorrect. Please use a valid
-                          UUID v4 as ID.
+                          The platformId is missing or incorrect. Please use a
+                          valid UUID v4.
                         </div>
                         <a
                           className="feedbackland:text-center feedbackland:underline"
@@ -311,44 +309,6 @@ export const OverlayWidget = memo(
                     >
                       <span aria-hidden="true">&times;</span>
                     </button>
-
-                    {/* {isClaimed && (
-                      <div className="feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:z-10 feedbackland:flex feedbackland:items-center feedbackland:justify-center feedbackland:size-8">
-                        <button
-                          onClick={close}
-                          onTouchEnd={close}
-                          // style={{ all: "unset" }}
-                          aria-label="Close feedback board"
-                          className="feedbackland:text-white! feedbackland:font-sans! feedbackland:text-[14px]! feedbackland:font-bold! feedbackland:border-none! feedbackland:bg-transparent!"
-                        >
-                          &#10006;
-                          <span
-                            className={cn(
-                              "feedbackland:text-white/70 feedbackland:cursor-pointer feedbackland:hover:text-white feedbackland:size-8 feedbackland:flex feedbackland:items-center feedbackland:justify-center",
-                              {
-                                "feedbackland:text-black/70 feedbackland:hover:text-black":
-                                  colorMode === "light",
-                              }
-                            )}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="feedbackland:size-4"
-                              fill="none"
-                              viewBox="0 0 25 25"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2.5}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </span>
-                        </button>
-                      </div>
-                    )} */}
                   </div>
                 </div>
               </FocusOn>

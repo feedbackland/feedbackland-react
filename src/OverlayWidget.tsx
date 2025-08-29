@@ -1,12 +1,12 @@
 "use client";
 
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
 import { useScrollLock } from "./hooks/use-scroll-lock";
 import { cn, validateUUID } from "./utils";
-import { X } from "lucide-react";
+// import { X } from "lucide-react";
 import FocusLock from "react-focus-lock";
 // import { useFocusLock } from "./hooks/use-focus-lock";
 
@@ -60,6 +60,25 @@ export const OverlayWidget = memo(
     const [platformUrl, setPlatformUrl] = useState<string | undefined>(
       undefined
     );
+
+    const open = () => {
+      // setShowIframe(true);
+      // setTimeout(() => setIsOpen(true), 250);
+
+      setIsOpen(true);
+    };
+
+    const close = useCallback(() => {
+      setIsOpen(false);
+
+      // setTimeout(() => {
+      //   setShowIframe(false);
+      //   setIframeLoaded(false);
+      //   setColorMode(mode);
+      // }, 250);
+
+      setColorMode(mode);
+    }, [mode]);
 
     useScrollLock(isOpen);
 
@@ -173,6 +192,9 @@ export const OverlayWidget = memo(
             setLoaded: (/* loaded: boolean */) => {
               // setIframeLoaded(loaded);
             },
+            close: () => {
+              close();
+            },
           },
         });
 
@@ -181,26 +203,7 @@ export const OverlayWidget = memo(
           messenger.destroy();
         };
       }
-    }, [subdomain, url /* , showIframe */]);
-
-    const open = () => {
-      // setShowIframe(true);
-      // setTimeout(() => setIsOpen(true), 250);
-
-      setIsOpen(true);
-    };
-
-    const close = () => {
-      setIsOpen(false);
-
-      // setTimeout(() => {
-      //   setShowIframe(false);
-      //   setIframeLoaded(false);
-      //   setColorMode(mode);
-      // }, 250);
-
-      setColorMode(mode);
-    };
+    }, [subdomain, url, close /* , showIframe */]);
 
     // const onButtonHover = () => {
     //   // setShowIframe(true);
@@ -245,7 +248,7 @@ export const OverlayWidget = memo(
               <FocusLock disabled={!isOpen} crossFrame={true}>
                 <div
                   className={cn(
-                    "feedbackland:isolate feedbackland:fixed feedbackland:top-2 feedbackland:bottom-2 feedbackland:right-2 feedbackland:rounded-[14px] feedbackland:w-full feedbackland:max-w-[calc(100vw-16px)] feedbackland:sm:max-w-[600px] feedbackland:bg-[#0A0A0A] feedbackland:border-white/10 feedbackland:border-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:translate-x-full feedbackland:will-change-auto feedbackland:overflow-hidden",
+                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-full feedbackland:max-w-[calc(100vw-16px)] feedbackland:sm:max-w-[600px] feedbackland:bg-[#0A0A0A] feedbackland:border-white/20 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:translate-x-full feedbackland:will-change-auto feedbackland:overflow-hidden",
                     {
                       "feedbackland:w-0": !isOpen,
                       "feedbackland:opacity-0": !isOpen,
@@ -263,7 +266,7 @@ export const OverlayWidget = memo(
                     className="feedbackland:relative feedbackland:w-full feedbackland:h-full"
                     ref={modalRef}
                   >
-                    <button
+                    {/* <button
                       aria-label="Close"
                       type="button"
                       className={cn(
@@ -274,11 +277,9 @@ export const OverlayWidget = memo(
                         }
                       )}
                       onClick={close}
-                      // onTouchEnd={close}
                     >
-                      {/* <span aria-hidden="true">&times;</span> */}
                       <X className="feedbackland:size-4! feedbackland:shrink-0!" />
-                    </button>
+                    </button> */}
 
                     {isValidID && (
                       <iframe

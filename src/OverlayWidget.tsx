@@ -57,6 +57,10 @@ export const OverlayWidget = memo(
     const handleOpen = () => {
       if (platformUrl) {
         setIsOpen(true);
+
+        setTimeout(() => {
+          setIframeLoaded(true);
+        }, 50);
       }
     };
 
@@ -207,14 +211,15 @@ export const OverlayWidget = memo(
                   ref={iframeRef}
                   src={platformUrl}
                   className={cn(
-                    "fl:fixed fl:top-0 fl:bottom-0 fl:right-0 fl:w-full fl:h-full fl:max-w-[calc(100vw-40px)] fl:sm:max-w-[600px] fl:bg-transparent fl:z-2147483647 fl:transform fl:transition-transform fl:duration-250 fl:ease-in-out fl:translate-x-full fl:will-change-transform fl:overflow-hidden fl:border-0 fl:border-none fl:outline-none fl:ring-0 fl:shadow-none fl:m-0 fl:p-0",
+                    "fl:fixed fl:top-0 fl:bottom-0 fl:right-0 fl:w-full fl:h-full fl:max-w-[calc(100vw-40px)] fl:sm:max-w-[600px] fl:z-2147483647 fl:transform fl:transition-transform fl:duration-250 fl:ease-in-out fl:translate-x-full fl:will-change-transform fl:overflow-hidden fl:border-0 fl:border-none fl:outline-none fl:ring-0 fl:shadow-none fl:m-0 fl:p-0 fl:bg-white",
                     {
                       "fl:translate-x-0": isIframeLoaded,
+                      "fl:bg-black": mode === "dark",
                     }
                   )}
-                  onLoad={() => {
-                    setIframeLoaded(true);
-                  }}
+                  // onLoad={() => {
+                  //   setIframeLoaded(true);
+                  // }}
                   allow="clipboard-write 'src'"
                   title="Share your feedback"
                   role="dialog"

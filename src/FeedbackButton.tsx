@@ -26,7 +26,7 @@ export const FeedbackButton = ({
         <button
           className={cn(
             "",
-            "feedbackland:bg-black feedbackland:border-white feedbackland:text-white feedbackland:rounded feedbackland:border-1 feedbackland:px-3 feedbackland:py-1.5 feedbackland:font-normal feedbackland:text-base feedbackland:hover:bg-[#2E2E2E] feedbackland:size-fit feedbackland:font-sm feedbackland:cursor-pointer",
+            "fl:bg-black fl:border-white fl:text-white fl:rounded fl:border-1 fl:px-3 fl:py-1.5 fl:font-normal fl:text-base fl:hover:bg-[#2E2E2E] fl:size-fit fl:font-sm fl:cursor-pointer",
             className
           )}
           style={style}

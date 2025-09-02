@@ -6,20 +6,18 @@ import { WindowMessenger, connect } from "penpal";
 import { isMobileOnly } from "react-device-detect";
 import { useScrollLock } from "./hooks/use-scroll-lock";
 import { cn, validateUUID } from "./utils";
-// import { X } from "lucide-react";
 import FocusLock from "react-focus-lock";
-// import { useFocusLock } from "./hooks/use-focus-lock";
 
 const getPlatformUrl = ({
   platformId,
   subdomain,
   url,
-  mode = "dark",
+  mode,
 }: {
   platformId: string;
   subdomain: string | null;
   url?: string;
-  mode?: "dark" | "light";
+  mode: "dark" | "light";
 }) => {
   let platformUrl: string | undefined = undefined;
 
@@ -38,7 +36,7 @@ export const OverlayWidget = memo(
   ({
     platformId,
     url,
-    mode = "dark",
+    mode = "light",
     children,
     className,
   }: {
@@ -49,46 +47,25 @@ export const OverlayWidget = memo(
     className?: React.ComponentProps<"div">["className"];
   }) => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
-    const modalRef = useRef<HTMLDivElement>(null);
-    const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    // const [isClaimed, setIsClaimed] = useState(true);
-    // const [showIframe, setShowIframe] = useState(true);
-    // const [iframeLoaded, setIframeLoaded] = useState(false);
+    const [isIframeLoaded, setIframeLoaded] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
-    const [colorMode, setColorMode] = useState(mode);
     const [platformUrl, setPlatformUrl] = useState<string | undefined>(
       undefined
     );
 
-    const open = () => {
-      // setShowIframe(true);
-      // setTimeout(() => setIsOpen(true), 250);
-
-      setIsOpen(true);
+    const handleOpen = () => {
+      if (platformUrl) {
+        setIsOpen(true);
+      }
     };
 
-    const close = useCallback(() => {
+    const handleClose = useCallback(() => {
+      setIframeLoaded(false);
       setIsOpen(false);
-
-      // setTimeout(() => {
-      //   setShowIframe(false);
-      //   setIframeLoaded(false);
-      //   setColorMode(mode);
-      // }, 250);
-
-      setColorMode(mode);
-    }, [mode]);
-
-    useScrollLock(isOpen);
-
-    // useFocusLock(modalRef as React.RefObject<HTMLDivElement>, {
-    //   enabled: isOpen,
-    // });
-
-    useEffect(() => {
-      setIsMounted(true);
     }, []);
+
+    useScrollLock(isIframeLoaded);
 
     useEffect(() => {
       const platformUrl = getPlatformUrl({
@@ -101,56 +78,49 @@ export const OverlayWidget = memo(
       setPlatformUrl(platformUrl);
     }, [platformId, mode, subdomain, url]);
 
-    // useEffect(() => {
-    //   if (!platformUrl) return;
+    useEffect(() => {
+      if (!platformUrl) return;
 
-    //   const origin = new URL(platformUrl).origin;
-    //   const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
-    //   const existingLink = document.head.querySelector(selector);
+      const origin = new URL(platformUrl).origin;
+      const selector = `link[rel="dns-prefetch"][href="${origin}"]`;
+      const existingLink = document.head.querySelector(selector);
 
-    //   if (existingLink) return;
+      if (existingLink) return;
 
-    //   // Add DNS prefetch
-    //   const dnsPrefetch = document.createElement("link");
-    //   dnsPrefetch.rel = "dns-prefetch";
-    //   dnsPrefetch.href = origin;
-    //   document.head.appendChild(dnsPrefetch);
+      // Add DNS prefetch
+      const dnsPrefetch = document.createElement("link");
+      dnsPrefetch.rel = "dns-prefetch";
+      dnsPrefetch.href = origin;
+      document.head.appendChild(dnsPrefetch);
 
-    //   return () => {
-    //     document.head.removeChild(dnsPrefetch);
-    //   };
-    // }, [platformUrl]);
-
-    // useEffect(() => {
-    //   if (!platformUrl) return;
-
-    //   const origin = new URL(platformUrl).origin;
-    //   const selector = `link[rel="preconnect"][href="${origin}"]`;
-    //   const existingLink = document.head.querySelector(selector);
-
-    //   if (existingLink) return;
-
-    //   // Add preconnect
-    //   const preconnect = document.createElement("link");
-    //   preconnect.rel = "preconnect";
-    //   preconnect.href = origin;
-    //   preconnect.crossOrigin = "anonymous";
-    //   document.head.appendChild(preconnect);
-
-    //   return () => {
-    //     document.head.removeChild(preconnect);
-    //   };
-    // }, [platformUrl]);
+      return () => {
+        document.head.removeChild(dnsPrefetch);
+      };
+    }, [platformUrl]);
 
     useEffect(() => {
-      if (
-        !platformId ||
-        !validateUUID(platformId) ||
-        url ||
-        subdomain
-        // || !showIframe
-      )
-        return;
+      if (!platformUrl) return;
+
+      const origin = new URL(platformUrl).origin;
+      const selector = `link[rel="preconnect"][href="${origin}"]`;
+      const existingLink = document.head.querySelector(selector);
+
+      if (existingLink) return;
+
+      // Add preconnect
+      const preconnect = document.createElement("link");
+      preconnect.rel = "preconnect";
+      preconnect.href = origin;
+      preconnect.crossOrigin = "anonymous";
+      document.head.appendChild(preconnect);
+
+      return () => {
+        document.head.removeChild(preconnect);
+      };
+    }, [platformUrl]);
+
+    useEffect(() => {
+      if (!platformId || !validateUUID(platformId) || url || subdomain) return;
 
       const fetchSubdomain = async () => {
         try {
@@ -174,10 +144,10 @@ export const OverlayWidget = memo(
       };
 
       fetchSubdomain();
-    }, [platformId, url, /* showIframe, */ subdomain]);
+    }, [platformId, url, subdomain]);
 
     useEffect(() => {
-      if (!!(url || subdomain) /* && showIframe */ && iframeRef.current) {
+      if (isIframeLoaded && iframeRef.current) {
         const messenger = new WindowMessenger({
           remoteWindow: iframeRef.current.contentWindow!,
           allowedOrigins: ["*"],
@@ -186,138 +156,72 @@ export const OverlayWidget = memo(
         const connection = connect({
           messenger,
           methods: {
-            setColorMode: (colorMode: "light" | "dark") => {
-              setColorMode(colorMode);
-            },
-            setLoaded: (/* loaded: boolean */) => {
-              // setIframeLoaded(loaded);
-            },
             close: () => {
-              close();
+              handleClose();
             },
           },
         });
 
         return () => {
           connection.destroy();
-          messenger.destroy();
         };
       }
-    }, [subdomain, url, close /* , showIframe */]);
+    }, [isIframeLoaded, handleClose]);
 
-    // const onButtonHover = () => {
-    //   // setShowIframe(true);
-    // };
+    // const isValidID = validateUUID(platformId);
 
-    const isValidID = validateUUID(platformId);
-
-    if (isMobileOnly && isValidID && platformUrl) {
-      return (
-        <a
-          href={platformUrl}
-          className={cn("", className)}
-          style={{ all: "unset" }}
-        >
-          {children}
-        </a>
-      );
-    }
+    // if (isMobileOnly && isValidID && platformUrl) {
+    //   return (
+    //     <a
+    //       href={platformUrl}
+    //       className={cn("", className)}
+    //       style={{ all: "unset" }}
+    //     >
+    //       {children}
+    //     </a>
+    //   );
+    // }
 
     return (
       <>
-        <div
-          onClick={open}
-          className={cn("", className)}
-          // onMouseEnter={onButtonHover}
-        >
+        <div onClick={handleOpen} className={cn("", className)}>
           {children}
         </div>
 
-        {isMounted &&
-          document &&
+        {isOpen &&
           createPortal(
             <>
-              {isOpen && (
-                <div
-                  onClick={close}
-                  className="feedbackland:fixed feedbackland:inset-0 feedbackland:transition-opacity feedbackland:ease-out feedbackland:bg-black/80 feedbackland:z-2147483646 feedbackland:duration-250 feedbackland:backdrop-blur-xs"
-                  aria-hidden="true"
-                ></div>
-              )}
+              <div
+                onClick={handleClose}
+                className={cn(
+                  "fl:fixed fl:inset-0 fl:transition-opacity fl:ease-out fl:bg-black/60 fl:z-2147483646 fl:duration-250",
+                  {
+                    "fl:opacity-0": !isIframeLoaded,
+                  }
+                )}
+                aria-hidden="true"
+              />
 
-              <FocusLock disabled={!isOpen} crossFrame={true}>
-                <div
+              <FocusLock crossFrame={true}>
+                <iframe
+                  ref={iframeRef}
+                  src={platformUrl}
                   className={cn(
-                    "feedbackland:isolate feedbackland:fixed feedbackland:top-0 feedbackland:bottom-0 feedbackland:right-0 feedbackland:w-full feedbackland:max-w-[calc(100vw-16px)] feedbackland:sm:max-w-[600px] feedbackland:bg-[#0A0A0A] feedbackland:border-white/20 feedbackland:border-l-1 feedbackland:z-2147483647 feedbackland:transform feedbackland:transition-transform feedbackland:duration-250 feedbackland:ease-out feedbackland:translate-x-full feedbackland:will-change-auto feedbackland:overflow-hidden",
+                    "fl:fixed fl:top-0 fl:bottom-0 fl:right-0 fl:w-full fl:h-full fl:max-w-[calc(100vw-40px)] fl:sm:max-w-[600px] fl:bg-transparent fl:z-2147483647 fl:transform fl:transition-transform fl:duration-250 fl:ease-in-out fl:translate-x-full fl:will-change-transform fl:overflow-hidden fl:border-0 fl:border-none fl:outline-none fl:ring-0 fl:shadow-none fl:m-0 fl:p-0",
                     {
-                      "feedbackland:w-0": !isOpen,
-                      "feedbackland:opacity-0": !isOpen,
-                      "feedbackland:pointer-events-none": !isOpen,
-                      "feedbackland:z-[-2147483646]": !isOpen,
-                      "feedbackland:translate-x-0": isOpen,
-                      "feedbackland:bg-white": colorMode === "light",
+                      "fl:translate-x-0": isIframeLoaded,
                     }
                   )}
+                  onLoad={() => {
+                    setIframeLoaded(true);
+                  }}
+                  allow="clipboard-write 'src'"
+                  title="Share your feedback"
                   role="dialog"
                   aria-modal="true"
                   aria-labelledby="Feedback board"
-                >
-                  <div
-                    className="feedbackland:relative feedbackland:w-full feedbackland:h-full"
-                    ref={modalRef}
-                  >
-                    {/* <button
-                      aria-label="Close"
-                      type="button"
-                      className={cn(
-                        "feedbackland:absolute feedbackland:top-2 feedbackland:right-2 feedbackland:z-50 feedbackland:flex feedbackland:size-7 feedbackland:shrink-0 feedbackland:items-center feedbackland:justify-center feedbackland:text-white/70 feedbackland:hover:text-white feedbackland:font-sans feedbackland:text-[21px] feedbackland:font-normal feedbackland:border-none feedbackland:hover:bg-white/10 feedbackland:rounded-full feedbackland:cursor-pointer",
-                        {
-                          "feedbackland:text-black/70 feedbackland:hover:text-black":
-                            colorMode === "light",
-                        }
-                      )}
-                      onClick={close}
-                    >
-                      <X className="feedbackland:size-4! feedbackland:shrink-0!" />
-                    </button> */}
-
-                    {isValidID && (
-                      <iframe
-                        ref={iframeRef}
-                        title="Share your feedback"
-                        src={platformUrl}
-                        // src={showIframe && platformUrl ? platformUrl : undefined}
-                        className={cn(
-                          "feedbackland:absolute feedbackland:top-0 feedbackland:left-0 feedbackland:w-full feedbackland:h-full feedbackland:border-none feedbackland:bg-transparent",
-                          {
-                            "feedbackland:hidden": !isOpen,
-                            "feedbackland:block": isOpen,
-                            // "feedbackland:opacity-0": !iframeLoaded,
-                          }
-                        )}
-                        allow="clipboard-write 'src'"
-                        // @ts-expect-error allowtransparency
-                        allowtransparency="true"
-                      />
-                    )}
-
-                    {!isValidID && (
-                      <div className="feedbackland:w-full feedbackland:h-full feedbackland:flex feedbackland:flex-col feedbackland:items-center feedbackland:justify-center feedbackland:text-red-700 feedbackland:text-base feedbackland:not-[]:eedbackland:p-5">
-                        <div className="feedbackland:mb-2 feedbackland:text-center ">
-                          The ID is missing or incorrect. Please use a valid
-                          UUID v4 as ID.
-                        </div>
-                        <a
-                          className="feedbackland:text-center feedbackland:underline"
-                          href="https://www.uuidtools.com/v4"
-                          target="_blank"
-                        >
-                          Generate your UUID v4
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  frameBorder="0" // For older browsers
+                />
               </FocusLock>
             </>,
             document.body

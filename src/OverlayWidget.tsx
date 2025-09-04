@@ -2,10 +2,9 @@
 
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useScrollLock } from "./hooks/use-scroll-lock";
 import { cn, validateUUID } from "./utils";
-import FocusLock from "react-focus-lock";
 import { XIcon } from "lucide-react";
+import { FocusOn } from "react-focus-on";
 
 const getPlatformUrl = ({
   platformId,
@@ -63,8 +62,6 @@ export const OverlayWidget = memo(
       setIsVisible(false);
     }, []);
 
-    useScrollLock(isOpened);
-
     useEffect(() => {
       setIsMounted(true);
     }, []);
@@ -101,7 +98,12 @@ export const OverlayWidget = memo(
                 aria-hidden="true"
               />
 
-              <FocusLock crossFrame={true}>
+              <FocusOn
+                enabled={isVisible}
+                onClickOutside={handleClose}
+                onEscapeKey={handleClose}
+                crossFrame={true}
+              >
                 <div
                   className={cn(
                     "fl:fixed fl:top-0 fl:bottom-0 fl:right-0 fl:w-full fl:h-full fl:max-w-[calc(100vw-40px)] fl:sm:max-w-[600px] fl:z-2147483647 fl:transform fl:transition-transform fl:duration-250 fl:ease-in-out fl:translate-x-full fl:will-change-transform fl:bg-white",
@@ -137,7 +139,7 @@ export const OverlayWidget = memo(
                     </button>
                   </div>
                 </div>
-              </FocusLock>
+              </FocusOn>
             </>,
             document.body
           )}

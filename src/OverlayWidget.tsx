@@ -31,12 +31,14 @@ export const OverlayWidget = memo(
     platformId,
     url,
     mode = "light",
+    preload = false,
     children,
     className,
   }: {
     platformId: string;
     url?: string;
     mode?: "dark" | "light";
+    preload?: boolean;
     children: React.ReactNode;
     className?: React.ComponentProps<"div">["className"];
   }) => {
@@ -123,7 +125,7 @@ export const OverlayWidget = memo(
                       className={cn(
                         "fl:w-full fl:h-full fl:overflow-hidden fl:border-0 fl:border-none fl:outline-none fl:ring-0 fl:shadow-none fl:m-0 fl:p-0"
                       )}
-                      loading="lazy"
+                      loading={preload ? "eager" : "lazy"}
                       allow="clipboard-write 'src'"
                       title="Share your feedback"
                       role="dialog"

@@ -17,7 +17,7 @@
   },
   "private": false,
   "scripts": {
-    "dev": "tsc -b && vite build --watch",
+    "dev": "tsc -b && vite",
     "build": "tsc -b && vite build",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",

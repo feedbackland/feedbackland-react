@@ -28,7 +28,7 @@ export const FeedbackButton = ({
         button
       ) : (
         <button
-          className="fl:bg-black fl:border-white/40 fl:text-white fl:rounded-[6px] fl:border-1 fl:px-3 fl:py-1.5 fl:font-normal fl:text-base fl:hover:bg-[#2E2E2E] fl:size-fit fl:font-sm fl:cursor-pointer"
+          className="fl:bg-black fl:border-white/40 fl:text-white fl:rounded-[6px] fl:border fl:px-3 fl:py-1.5 fl:hover:bg-[#222] fl:size-fit fl:text-sm fl:cursor-pointer"
           style={style}
         >
           {text}

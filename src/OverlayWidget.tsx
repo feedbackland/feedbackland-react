@@ -5,40 +5,17 @@ import { createPortal } from "react-dom";
 import { cn, validateUUID } from "./utils";
 import { XIcon } from "lucide-react";
 import { FocusOn } from "react-focus-on";
-
-const getPlatformUrl = ({
-  platformId,
-  url,
-  mode,
-}: {
-  platformId: string;
-  url?: string;
-  mode: "dark" | "light";
-}) => {
-  let platformUrl: string | undefined = undefined;
-
-  if (url) {
-    platformUrl = `${url}?mode=${mode}`;
-  } else if (platformId && validateUUID(platformId)) {
-    platformUrl = `https://${platformId}.feedbackland.com?mode=${mode}`;
-  }
-
-  return platformUrl;
-};
+import { useDarkMode } from "./hooks/use-dark-mode";
 
 export const OverlayWidget = memo(
   ({
     platformId,
     url,
-    mode = "light",
-    preload = false,
     children,
     className,
   }: {
     platformId: string;
     url?: string;
-    mode?: "dark" | "light";
-    preload?: boolean;
     children: React.ReactNode;
     className?: React.ComponentProps<"div">["className"];
   }) => {
@@ -49,6 +26,7 @@ export const OverlayWidget = memo(
     const [platformUrl, setPlatformUrl] = useState<string | undefined>(
       undefined
     );
+    const isDarkMode = useDarkMode();
 
     const handleOpen = () => {
       if (platformUrl) {
@@ -69,18 +47,24 @@ export const OverlayWidget = memo(
     }, []);
 
     useEffect(() => {
-      const platformUrl = getPlatformUrl({
-        platformId,
-        url,
-        mode,
-      });
+      const mode = isDarkMode ? "dark" : "light";
+      let platformUrl: string | undefined = undefined;
+
+      if (url) {
+        platformUrl = `${url}?mode=${mode}`;
+      } else if (platformId && validateUUID(platformId)) {
+        platformUrl = `https://${platformId}.feedbackland.com?mode=${mode}`;
+      }
 
       setPlatformUrl(platformUrl);
-    }, [platformId, mode, url]);
+    }, [platformId, isDarkMode, url]);
 
     return (
       <>
-        <div onClick={handleOpen} className={cn("", className)}>
+        <div
+          onClick={handleOpen}
+          className={cn("", { dark: isDarkMode }, className)}
+        >
           {children}
         </div>
 
@@ -93,28 +77,26 @@ export const OverlayWidget = memo(
                 className={cn(
                   "fl:fixed fl:inset-0 fl:transition-opacity fl:ease-out fl:bg-black/65 fl:z-2147483646 fl:duration-250",
                   {
-                    "fl:-z-200": !isVisible,
-                    "fl:opacity-0": !isVisible,
+                    "fl:-z-200 fl:opacity-0": !isVisible,
                   }
                 )}
                 aria-hidden="true"
               />
 
               <FocusOn
-                enabled={isVisible}
+                enabled={isOpened}
                 onClickOutside={handleClose}
                 onEscapeKey={handleClose}
                 crossFrame={true}
               >
                 <div
                   className={cn(
-                    "fl:fixed fl:top-0 fl:bottom-0 fl:right-0 fl:w-full fl:h-full fl:max-w-[calc(100vw-40px)] fl:sm:max-w-[600px] fl:z-2147483647 fl:transform fl:transition-transform fl:duration-250 fl:ease-in-out fl:translate-x-full fl:will-change-transform fl:bg-white",
+                    "fl:fixed fl:top-0 fl:bottom-0 fl:right-0 fl:w-full fl:h-full fl:max-w-[calc(100vw-40px)] fl:sm:max-w-[600px] fl:z-2147483647 fl:transform fl:transition-transform fl:duration-250 fl:ease-in-out fl:translate-x-full fl:will-change-transform fl:bg-background fl:border-l fl:border-border",
                     {
                       "fl:top-10000": !isOpened,
-                      "fl:overflow-hidden": !isVisible,
-                      "fl:-z-100": !isVisible,
+                      "fl:overflow-hidden fl:-z-100": !isVisible,
                       "fl:translate-x-0": isVisible,
-                      "fl:bg-black": mode === "dark",
+                      dark: isDarkMode,
                     }
                   )}
                 >
@@ -125,7 +107,7 @@ export const OverlayWidget = memo(
                       className={cn(
                         "fl:w-full fl:h-full fl:overflow-hidden fl:border-0 fl:border-none fl:outline-none fl:ring-0 fl:shadow-none fl:m-0 fl:p-0"
                       )}
-                      loading={preload ? "eager" : "lazy"}
+                      loading="lazy"
                       allow="clipboard-write 'src'"
                       title="Share your feedback"
                       role="dialog"

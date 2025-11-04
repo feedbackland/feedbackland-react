@@ -1,39 +1,33 @@
+import { buttonVariants } from "./components/ui/button";
 import { OverlayWidget } from "./OverlayWidget";
+import { Slot } from "@radix-ui/react-slot";
+import { type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 export const FeedbackButton = ({
   platformId,
   url,
-  mode,
-  preload = false,
-  text = "Feedback",
-  style,
-  button,
-}: {
-  platformId: string;
-  url?: string;
-  mode?: "dark" | "light";
-  preload?: boolean;
-  text?: string;
-  style?: React.CSSProperties;
-  button?: React.ReactNode;
-}) => {
+  className,
+  variant,
+  size,
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    text?: string;
+    platformId: string;
+    url?: string;
+  }) => {
+  const Comp = asChild ? Slot : "button";
+
   return (
-    <OverlayWidget
-      platformId={platformId}
-      url={url}
-      mode={mode}
-      preload={preload}
-    >
-      {button ? (
-        button
-      ) : (
-        <button
-          className="fl:bg-black fl:border-white/40 fl:text-white fl:rounded-[6px] fl:border fl:px-3 fl:py-1.5 fl:hover:bg-[#222] fl:size-fit fl:text-sm fl:cursor-pointer"
-          style={style}
-        >
-          {text}
-        </button>
-      )}
+    <OverlayWidget platformId={platformId} url={url}>
+      <Comp
+        data-slot="button"
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      />
     </OverlayWidget>
   );
 };

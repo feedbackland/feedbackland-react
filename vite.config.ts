@@ -18,6 +18,11 @@ export default defineConfig({
     cssInjectedByJsPlugin({ topExecutionPriority: false }),
     dts({ tsconfigPath: "tsconfig.app.json", insertTypesEntry: true }),
   ],
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src"),
+    },
+  },
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),

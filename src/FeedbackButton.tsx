@@ -1,33 +1,53 @@
 import { buttonVariants } from "./components/ui/button";
 import { OverlayWidget } from "./OverlayWidget";
-import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { PopoverWidget } from "./PopoverWidget";
 
 export const FeedbackButton = ({
   platformId,
   url,
+  widget = "drawer",
   className,
   variant,
   size,
-  asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-    text?: string;
     platformId: string;
     url?: string;
+    widget?: "drawer" | "popover" | "link";
   }) => {
-  const Comp = asChild ? Slot : "button";
+  const Comp = "button";
+
+  const button = (
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+      {...(widget === "link" && {
+        onClick: () => {
+          window.open(`https://${platformId}.feedbackland.com`, "_blank");
+        },
+      })}
+    />
+  );
+
+  if (widget === "link") {
+    return button;
+  }
+
+  if (widget === "popover") {
+    return (
+      <PopoverWidget platformId={platformId} url={url}>
+        {button}
+      </PopoverWidget>
+    );
+  }
 
   return (
     <OverlayWidget platformId={platformId} url={url}>
-      <Comp
-        data-slot="button"
-        className={cn(buttonVariants({ variant, size, className }))}
-        {...props}
-      />
+      {button}
     </OverlayWidget>
   );
 };

@@ -1,7 +1,7 @@
-import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
+import * as React from "react";
+import * as LabelPrimitive from "@radix-ui/react-label";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Label({
   className,
@@ -11,12 +11,12 @@ function Label({
     <LabelPrimitive.Root
       data-slot="label"
       className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        "fl:flex fl:items-center fl:gap-2 fl:text-sm fl:leading-none fl:font-medium fl:select-none fl:group-data-[disabled=true]:pointer-events-none fl:group-data-[disabled=true]:opacity-50 fl:peer-disabled:cursor-not-allowed fl:peer-disabled:opacity-50",
         className
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Label }
+export { Label };

@@ -1,28 +1,26 @@
-import { FeedbackButton } from "./FeedbackButton";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { PopoverWidget } from "./PopoverWidget";
+import { FeedbackButton } from "./FeedbackButton";
+
+const platformId = "987637fb-7ca1-4bd6-b608-cc416db75788";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "black",
-      }}
-    >
-      <FeedbackButton platformId="cc10380b-6f5f-41fc-b28b-4000c021bc3b">
+    <div className="fl:h-screen fl:w-screen fl:flex fl:gap-3 fl:bg-black">
+      <FeedbackButton
+        platformId={platformId}
+        url="http://localhost:3000/zolg1"
+        widget="drawer"
+      >
         Feedback
       </FeedbackButton>
-
-      <div className="p-10">
-        <PopoverWidget />
-      </div>
+      <FeedbackButton platformId={platformId} widget="link">
+        Feedback
+      </FeedbackButton>
+      <FeedbackButton platformId={platformId} widget="popover">
+        Feedback
+      </FeedbackButton>
     </div>
   </React.StrictMode>
 );

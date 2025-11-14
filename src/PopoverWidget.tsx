@@ -23,10 +23,8 @@ import { useState } from "react";
 import { useWindowSize } from "react-use";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -103,6 +101,12 @@ export function PopoverWidget({
     }
   }
 
+  const onOpenChange = () => {
+    setTimeout(() => {
+      setStatus("active");
+    }, 100);
+  };
+
   const Inner = (
     <>
       {status === "active" && (
@@ -143,7 +147,7 @@ export function PopoverWidget({
             <div className="fl:flex fl:items-center fl:gap-1.5 fl:text-xs fl:font-normal">
               <InfoIcon className="fl:size-3.5! fl:shrink-0" />
               <span>
-                Your feedback will appear anonymously on our{" "}
+                Your feedback will be posted anonymously on our{" "}
                 <a
                   href={`https://${platformId}.feedbackland.com`}
                   target="_blank"
@@ -152,7 +156,6 @@ export function PopoverWidget({
                 >
                   feedback board
                 </a>
-                , where others can view, upvote and discuss it.
               </span>
             </div>
             <Button
@@ -201,19 +204,11 @@ export function PopoverWidget({
 
   if (width > 768) {
     return (
-      <Popover
-        onOpenChange={() => {
-          setTimeout(() => {
-            setStatus("active");
-          }, 100);
-        }}
-      >
+      <Popover onOpenChange={onOpenChange}>
         <PopoverTrigger asChild className={cn("", { dark: isDarkMode })}>
           {children}
         </PopoverTrigger>
-        <PopoverContent
-          className={cn("fl:w-full fl:max-w-[500px]", { dark: isDarkMode })}
-        >
+        <PopoverContent className={cn("fl:w-[500px]", { dark: isDarkMode })}>
           {Inner}
         </PopoverContent>
       </Popover>
@@ -221,7 +216,7 @@ export function PopoverWidget({
   }
 
   return (
-    <Drawer>
+    <Drawer onOpenChange={onOpenChange}>
       <DrawerTrigger asChild>
         <Button>Feedback</Button>
       </DrawerTrigger>

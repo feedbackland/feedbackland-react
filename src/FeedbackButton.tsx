@@ -1,3 +1,6 @@
+"use client";
+
+import "./index.css";
 import { buttonVariants } from "./components/ui/button";
 import { OverlayWidget } from "./OverlayWidget";
 import { type VariantProps } from "class-variance-authority";
@@ -20,10 +23,21 @@ export const FeedbackButton = ({
   }) => {
   const Comp = "button";
 
+  // const bleh = {} as any;
+
+  // const bleh = className
+  //   ?.split(" ")
+  //   .map((name) => `fl:${name}`)
+  //   .join(" ");
+
+  console.log(className);
+
+  // const zolg = "fl:bg-[#f1f1f1] fl:text-[#ccc]";
+
   const button = (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
       {...(widget === "link" && {
         onClick: () => {
@@ -33,23 +47,25 @@ export const FeedbackButton = ({
     />
   );
 
+  let component = (
+    <OverlayWidget platformId={platformId} url={url}>
+      {button}
+    </OverlayWidget>
+  );
+
   if (widget === "link") {
-    return button;
+    component = button;
   }
 
   if (widget === "popover") {
-    return (
+    component = (
       <PopoverWidget platformId={platformId} url={url}>
         {button}
       </PopoverWidget>
     );
   }
 
-  return (
-    <OverlayWidget platformId={platformId} url={url}>
-      {button}
-    </OverlayWidget>
-  );
+  return component;
 };
 
 FeedbackButton.displayName = "FeedbackButton";

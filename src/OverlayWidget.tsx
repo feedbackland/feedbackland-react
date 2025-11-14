@@ -12,12 +12,10 @@ export const OverlayWidget = memo(
     platformId,
     url,
     children,
-    className,
   }: {
     platformId: string;
     url?: string;
     children: React.ReactNode;
-    className?: React.ComponentProps<"div">["className"];
   }) => {
     const [isMounted, setIsMounted] = useState(false);
     const [isOpened, setIsOpened] = useState(false);
@@ -57,10 +55,7 @@ export const OverlayWidget = memo(
 
     return (
       <>
-        <div
-          onClick={handleOpen}
-          className={cn("", { dark: isDarkMode }, className)}
-        >
+        <div onClick={handleOpen} className={cn("", { dark: isDarkMode })}>
           {children}
         </div>
 
